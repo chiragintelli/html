@@ -1,15 +1,12 @@
 import 'dart:io';
 
-import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:hmtl/Utils/app_colors.dart';
 import 'package:hmtl/Utils/app_strings.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:url_launcher/url_launcher.dart';
-// import 'package:your_app/utils/app_image.dart';
-// import 'package:your_app/controller/your_controller.dart';
-import 'package:dio/dio.dart';
 
 class AboutView extends StatefulWidget {
   const AboutView({super.key});
@@ -18,8 +15,21 @@ class AboutView extends StatefulWidget {
   State<AboutView> createState() => _AboutViewState();
 }
 
-class _AboutViewState extends State<AboutView> {
-  // final controller = YourController();
+class _AboutViewState extends State<AboutView>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController; // ✅ Add this
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 3, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
 
   final productImageList = [
     "assets/images/pro_1.jpg",
@@ -74,11 +84,10 @@ class _AboutViewState extends State<AboutView> {
         "That's why we offer a range of packaging solutions tailored to meet the diverse needs of our customers and the specific requirements of each product.",
   ];
 
-
-
   // --- 📞 Launch Phone Call ---
   Future<void> _launchPhoneCall() async {
-    final Uri phoneUri = Uri(scheme: 'tel', path: '+919876543210'); // Replace later
+    final Uri phoneUri =
+        Uri(scheme: 'tel', path: '+919876543210'); // Replace later
     if (!await launchUrl(phoneUri)) {
       throw Exception('Could not launch $phoneUri');
     }
@@ -104,72 +113,94 @@ class _AboutViewState extends State<AboutView> {
 
   bool isDownloading = false;
 
-
+  // Future<void> _downloadAndOpenBrochure() async {
+  //   try {
+  //     // ✅ Step 1: Check Connectivity (WiFi/Data adapter)
+  //     final connectivityResult = await Connectivity().checkConnectivity();
+  //     if (connectivityResult == ConnectivityResult.none) {
+  //       ScaffoldMessenger.of(context).showSnackBar(
+  //         const SnackBar(content: Text('Internet connection not available.')),
+  //       );
+  //       return;
+  //     }
+  //
+  //     // ✅ Step 2: Verify Actual Internet Access
+  //     bool hasInternet = false;
+  //     try {
+  //       final result = await InternetAddress.lookup('google.com')
+  //           .timeout(const Duration(seconds: 3));
+  //       if (result.isNotEmpty && result.first.rawAddress.isNotEmpty) {
+  //         hasInternet = true;
+  //       }
+  //     } catch (_) {
+  //       hasInternet = false;
+  //     }
+  //
+  //     if (!hasInternet) {
+  //       ScaffoldMessenger.of(context).showSnackBar(
+  //         const SnackBar(content: Text('Internet connection not available.')),
+  //       );
+  //       return;
+  //     }
+  //
+  //     // ✅ Step 3: Proceed with download
+  //     setState(() => isDownloading = true);
+  //
+  //     const String pdfUrl =
+  //         'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf';
+  //     final Dio dio = Dio();
+  //
+  //     final dir = await getApplicationDocumentsDirectory();
+  //     final filePath = '${dir.path}/HMT_Brochure.pdf';
+  //
+  //     try {
+  //       await dio.download(pdfUrl, filePath);
+  //     } on DioException catch (_) {
+  //       setState(() => isDownloading = false);
+  //       ScaffoldMessenger.of(context).showSnackBar(
+  //         const SnackBar(content: Text('Failed to download. Please check internet.')),
+  //       );
+  //       return;
+  //     }
+  //
+  //     setState(() => isDownloading = false);
+  //
+  //     // ✅ Step 4: Open the file
+  //     if (await File(filePath).exists()) {
+  //       await OpenFilex.open(filePath);
+  //     } else {
+  //       ScaffoldMessenger.of(context).showSnackBar(
+  //         const SnackBar(content: Text('Download failed. Please try again.')),
+  //       );
+  //     }
+  //   } catch (e) {
+  //     setState(() => isDownloading = false);
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       const SnackBar(content: Text('Internet connection not available.')),
+  //     );
+  //   }
+  // }
 
   Future<void> _downloadAndOpenBrochure() async {
     try {
-      // ✅ Step 1: Check Connectivity (WiFi/Data adapter)
-      final connectivityResult = await Connectivity().checkConnectivity();
-      if (connectivityResult == ConnectivityResult.none) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Internet connection not available.')),
-        );
-        return;
-      }
-
-      // ✅ Step 2: Verify Actual Internet Access
-      bool hasInternet = false;
-      try {
-        final result = await InternetAddress.lookup('google.com')
-            .timeout(const Duration(seconds: 3));
-        if (result.isNotEmpty && result.first.rawAddress.isNotEmpty) {
-          hasInternet = true;
-        }
-      } catch (_) {
-        hasInternet = false;
-      }
-
-      if (!hasInternet) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Internet connection not available.')),
-        );
-        return;
-      }
-
-      // ✅ Step 3: Proceed with download
       setState(() => isDownloading = true);
 
-      const String pdfUrl =
-          'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf';
-      final Dio dio = Dio();
+      // ✅ Step 1: Load the PDF from assets
+      final byteData = await rootBundle.load('assets/images/HMTL Brochure.pdf');
 
-      final dir = await getApplicationDocumentsDirectory();
-      final filePath = '${dir.path}/HMT_Brochure.pdf';
-
-      try {
-        await dio.download(pdfUrl, filePath);
-      } on DioException catch (_) {
-        setState(() => isDownloading = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to download. Please check internet.')),
-        );
-        return;
-      }
+      // ✅ Step 2: Write to a temporary file
+      final tempDir = await getTemporaryDirectory();
+      final file = File('${tempDir.path}/HMTL_Brochure.pdf');
+      await file.writeAsBytes(byteData.buffer.asUint8List());
 
       setState(() => isDownloading = false);
 
-      // ✅ Step 4: Open the file
-      if (await File(filePath).exists()) {
-        await OpenFilex.open(filePath);
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Download failed. Please try again.')),
-        );
-      }
+      // ✅ Step 3: Open in default PDF viewer
+      await OpenFilex.open(file.path);
     } catch (e) {
       setState(() => isDownloading = false);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Internet connection not available.')),
+        SnackBar(content: Text('Error opening brochure: $e')),
       );
     }
   }
@@ -181,7 +212,9 @@ class _AboutViewState extends State<AboutView> {
       child: Scaffold(
         appBar: AppBar(
           title: const Text('About HMT'),
-          bottom:  TabBar(
+          bottom: TabBar(
+            controller: _tabController, // ✅ Connected here
+
             indicatorColor: AppColor.primaryRedColor,
             tabs: [
               Tab(icon: Icon(Icons.pages_outlined), text: 'Infra'),
@@ -191,6 +224,8 @@ class _AboutViewState extends State<AboutView> {
           ),
         ),
         body: TabBarView(
+          physics: const NeverScrollableScrollPhysics(),
+          controller: _tabController,
           children: [
             buildInfraTab(),
             buildProductTab(),
@@ -232,20 +267,23 @@ class _AboutViewState extends State<AboutView> {
         const SizedBox(height: 10),
         const Divider(thickness: 1),
         const SizedBox(height: 20),
+
         /// --- ACTION BUTTONS ---
-        // Row(
-        //   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        //   children: [
-        //     buildActionButton('Visit hmtl.in', Icons.language, Colors.blueAccent, _launchWebsite),
-        //     buildActionButton('Call Inquiry', Icons.phone, Colors.green, _launchPhoneCall),
-        //     buildActionButton(
-        //       isDownloading ? 'Downloading...' : 'Download Brochure',
-        //       isDownloading ? Icons.downloading : Icons.download,
-        //       Colors.orange,
-        //       isDownloading ? null : () => _downloadAndOpenBrochure(),
-        //     ),
-        //   ],
-        // ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            buildActionButton('Visit hmtl.in', Icons.language,
+                Colors.blueAccent, _launchWebsite),
+            // buildActionButton(
+            //     'Call Inquiry', Icons.phone, Colors.green, _launchPhoneCall),
+            buildActionButton(
+              isDownloading ? 'Downloading...' : 'Download Brochure',
+              isDownloading ? Icons.downloading : Icons.download,
+              Colors.orange,
+              isDownloading ? null : () => _downloadAndOpenBrochure(),
+            ),
+          ],
+        ),
         const SizedBox(height: 20),
       ],
     );
@@ -281,7 +319,8 @@ class _AboutViewState extends State<AboutView> {
       icon: Icon(icon, color: color),
       label: Text(
         label,
-        style: TextStyle(color: color, fontSize: 14, fontWeight: FontWeight.w600),
+        style:
+            TextStyle(color: color, fontSize: 10, fontWeight: FontWeight.w600),
       ),
       style: TextButton.styleFrom(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
