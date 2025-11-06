@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hmtl/UI/about/views/about_view.dart';
+import 'package:hmtl/UI/about/views/bout_view.dart';
 import 'package:hmtl/UI/chemical/views/chemical_view.dart';
 import 'package:hmtl/UI/gauge/views/gauge_view.dart';
 import 'package:hmtl/UI/main/controllers/main_controller.dart';
@@ -15,6 +16,8 @@ class MainView extends GetView<MainController> {
     ManualView(),
     NpsView(),
     AboutView(),
+
+
     GaugeView(),
     ChemicalView(),
   ];

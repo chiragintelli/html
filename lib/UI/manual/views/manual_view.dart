@@ -1008,7 +1008,7 @@ class _ManualViewState extends State<ManualView> {
                             children: [
                               TableCell(
                                 child: SizedBox(
-                                    height: 40, child: Center(child: Text(' ', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16)))),
+                                    height: 40, child: Center(child: Text(controller.selectedCurrency.isNotEmpty ? "In ${controller.selectedCurrency[0].toString()}" : ' ', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16)))),
                               ),
                               TableCell(
                                 child: Container(
