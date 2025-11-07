@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hmtl/UI/about/views/about_view.dart';
-import 'package:hmtl/UI/about/views/bout_view.dart';
 import 'package:hmtl/UI/chemical/views/chemical_view.dart';
+import 'package:hmtl/UI/gauge/controllers/gauge_controller.dart';
 import 'package:hmtl/UI/gauge/views/gauge_view.dart';
 import 'package:hmtl/UI/main/controllers/main_controller.dart';
+import 'package:hmtl/UI/manual/controllers/manual_controller.dart';
 import 'package:hmtl/UI/manual/views/manual_view.dart';
+import 'package:hmtl/UI/nps/controllers/nps_controller.dart';
 import 'package:hmtl/UI/nps/views/nps_view.dart';
 import 'package:hmtl/Utils/app_colors.dart';
 
@@ -16,8 +18,6 @@ class MainView extends GetView<MainController> {
     ManualView(),
     NpsView(),
     AboutView(),
-
-
     GaugeView(),
     ChemicalView(),
   ];
@@ -58,17 +58,29 @@ class MainView extends GetView<MainController> {
                     ),
                     Row(
                       children: List.generate(controller.tabs.length, (index) {
+                        ManualController manualController =
+                            Get.put(ManualController());
+
+                        NpsController npsController = Get.put(NpsController());
+                        GaugeController gaugeController =
+                            Get.put(GaugeController());
+
                         return Expanded(
                           child: GestureDetector(
                             onTap: () {
                               controller.currentPage.value = index;
+                              manualController.resetCalc();
+                              npsController.resetCalc();
+                              gaugeController.resetCalc();
                             },
                             child: Container(
                               alignment: Alignment.center,
                               child: Text(
                                 controller.tabs[index],
                                 style: TextStyle(
-                                  color: controller.currentPage.value == index ? AppColor.primaryRedColor : Colors.white,
+                                  color: controller.currentPage.value == index
+                                      ? AppColor.primaryRedColor
+                                      : Colors.white,
                                   fontWeight: FontWeight.w500,
                                   fontSize: 15,
                                   overflow: TextOverflow.ellipsis,

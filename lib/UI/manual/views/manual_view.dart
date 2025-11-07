@@ -40,7 +40,8 @@ class _ManualViewState extends State<ManualView> {
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: Opacity(
                       opacity: 0,
-                      child: Icon(Icons.account_box_rounded,
+                      child: Icon(
+                        Icons.account_box_rounded,
                         color: Colors.white,
                         size: 40,
                       ),
@@ -48,7 +49,10 @@ class _ManualViewState extends State<ManualView> {
                   ),
                   Text(
                     'Switch units',
-                    style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w600),
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.w600),
                   ),
                   GestureDetector(
                     onTap: () {
@@ -57,7 +61,8 @@ class _ManualViewState extends State<ManualView> {
                     },
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 20),
-                      child: Icon(Icons.account_circle_rounded,
+                      child: Icon(
+                        Icons.account_circle_rounded,
                         color: Colors.white,
                         size: 40,
                       ),
@@ -80,14 +85,16 @@ class _ManualViewState extends State<ManualView> {
                     ),
                     child: LayoutBuilder(
                       builder: (context, constraints) {
-                        double itemWidth = constraints.maxWidth / controller.units.length;
+                        double itemWidth =
+                            constraints.maxWidth / controller.units.length;
 
                         return Stack(
                           children: [
                             AnimatedPositioned(
                               duration: Duration(milliseconds: 250),
                               curve: Curves.easeInOut,
-                              left: controller.selectedUnitIndex.value * itemWidth,
+                              left: controller.selectedUnitIndex.value *
+                                  itemWidth,
                               width: itemWidth,
                               top: 0,
                               bottom: 0,
@@ -99,15 +106,20 @@ class _ManualViewState extends State<ManualView> {
                               ),
                             ),
                             Row(
-                              children: List.generate(controller.units.length, (index) {
-                                bool isSelected = index == controller.selectedUnitIndex.value;
+                              children: List.generate(controller.units.length,
+                                  (index) {
+                                bool isSelected =
+                                    index == controller.selectedUnitIndex.value;
                                 return Expanded(
                                   child: GestureDetector(
                                     onTap: () {
-                                      controller.selectedUnitIndex.value = index;
-                                      if (controller.textEditingControllerOd.text.isEmpty) {
+                                      controller.selectedUnitIndex.value =
+                                          index;
+                                      if (controller.textEditingControllerOd
+                                          .text.isEmpty) {
                                         controller.focusNodeOd.requestFocus();
                                       }
+
                                       controller.resetCalc();
                                       setState(() {});
                                     },
@@ -116,7 +128,9 @@ class _ManualViewState extends State<ManualView> {
                                       child: Text(
                                         controller.units[index],
                                         style: TextStyle(
-                                          color: isSelected ? Colors.blue[800] : Colors.white,
+                                          color: isSelected
+                                              ? Colors.blue[800]
+                                              : Colors.white,
                                           fontWeight: FontWeight.w600,
                                           fontSize: 16,
                                         ),
@@ -173,7 +187,8 @@ class _ManualViewState extends State<ManualView> {
                       child: ClipPath(
                         clipper: NotchedClipper(),
                         child: Container(
-                          padding: EdgeInsets.only(top: 10, left: 12, right: 12,bottom: 15),
+                          padding: EdgeInsets.only(
+                              top: 10, left: 12, right: 12, bottom: 15),
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(12),
                             gradient: LinearGradient(
@@ -190,22 +205,31 @@ class _ManualViewState extends State<ManualView> {
                             children: [
                               Text(
                                 'Pipe Weights',
-                                style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600),
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600),
                               ),
                               SizedBox(height: 8),
                               Row(
                                 children: [
                                   Expanded(
                                     child: Container(
-                                      padding: EdgeInsets.symmetric(vertical: 5),
-                                      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
+                                      padding:
+                                          EdgeInsets.symmetric(vertical: 5),
+                                      decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          borderRadius:
+                                              BorderRadius.circular(12)),
                                       child: TextField(
-                                        controller: controller.textEditingControllerOd,
+                                        controller:
+                                            controller.textEditingControllerOd,
                                         focusNode: controller.focusNodeOd,
                                         readOnly: true,
                                         showCursor: true,
                                         decoration: InputDecoration(
-                                          contentPadding: EdgeInsets.symmetric(horizontal: 10),
+                                          contentPadding: EdgeInsets.symmetric(
+                                              horizontal: 10),
                                           labelText: 'OD',
                                           border: InputBorder.none,
                                           enabledBorder: InputBorder.none,
@@ -224,15 +248,21 @@ class _ManualViewState extends State<ManualView> {
                                   SizedBox(width: 10),
                                   Expanded(
                                     child: Container(
-                                      padding: EdgeInsets.symmetric(vertical: 5),
-                                      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
+                                      padding:
+                                          EdgeInsets.symmetric(vertical: 5),
+                                      decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          borderRadius:
+                                              BorderRadius.circular(12)),
                                       child: TextField(
-                                        controller: controller.textEditingControllerThk,
+                                        controller:
+                                            controller.textEditingControllerThk,
                                         focusNode: controller.focusNodeThk,
                                         readOnly: true,
                                         showCursor: true,
                                         decoration: InputDecoration(
-                                          contentPadding: EdgeInsets.symmetric(horizontal: 10),
+                                          contentPadding: EdgeInsets.symmetric(
+                                              horizontal: 10),
                                           labelText: 'THK',
                                           border: InputBorder.none,
                                           enabledBorder: InputBorder.none,
@@ -251,15 +281,21 @@ class _ManualViewState extends State<ManualView> {
                                   SizedBox(width: 10),
                                   Expanded(
                                     child: Container(
-                                      padding: EdgeInsets.symmetric(vertical: 5),
-                                      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
+                                      padding:
+                                          EdgeInsets.symmetric(vertical: 5),
+                                      decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          borderRadius:
+                                              BorderRadius.circular(12)),
                                       child: TextField(
-                                        controller: controller.textEditingControllerId,
+                                        controller:
+                                            controller.textEditingControllerId,
                                         focusNode: controller.focusNodeId,
                                         readOnly: true,
                                         showCursor: true,
                                         decoration: InputDecoration(
-                                          contentPadding: EdgeInsets.symmetric(horizontal: 10),
+                                          contentPadding: EdgeInsets.symmetric(
+                                              horizontal: 10),
                                           labelText: 'ID',
                                           border: InputBorder.none,
                                           enabledBorder: InputBorder.none,
@@ -279,8 +315,10 @@ class _ManualViewState extends State<ManualView> {
                               ),
                               if (controller.selectedUnitIndex.value == 1) ...[
                                 if (controller.textEditingControllerOd.text.isNotEmpty ||
-                                    controller.textEditingControllerId.text.isNotEmpty ||
-                                    controller.textEditingControllerThk.text.isNotEmpty)
+                                    controller.textEditingControllerId.text
+                                        .isNotEmpty ||
+                                    controller.textEditingControllerThk.text
+                                        .isNotEmpty)
                                   SizedBox(height: 10),
                                 Container(
                                   // padding: EdgeInsets.symmetric(horizontal: 10),
@@ -293,44 +331,83 @@ class _ManualViewState extends State<ManualView> {
                                         children: [
                                           // SizedBox(width: 10),
                                           Expanded(
-                                            child: controller.textEditingControllerOd.text.isNotEmpty
+                                            child: controller
+                                                    .textEditingControllerOd
+                                                    .text
+                                                    .isNotEmpty
                                                 ? Container(
                                                     alignment: Alignment.center,
                                                     // padding: EdgeInsets.symmetric(horizontal: 10),
-                                                    decoration: BoxDecoration(borderRadius: BorderRadius.circular(12)),
+                                                    decoration: BoxDecoration(
+                                                        borderRadius:
+                                                            BorderRadius.circular(
+                                                                12)),
                                                     child: Text(
-                                                        (Utils.parseToDouble(controller.textEditingControllerOd.text, toMM: true)).toStringAsFixed(2),
+                                                        (Utils.parseToDouble(controller.textEditingControllerOd.text,
+                                                                toMM: true))
+                                                            .toStringAsFixed(2),
                                                         maxLines: 2,
-                                                        overflow: TextOverflow.clip,
-                                                        style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w500)))
+                                                        overflow:
+                                                            TextOverflow.clip,
+                                                        style: TextStyle(
+                                                            color: Colors.white,
+                                                            fontSize: 14,
+                                                            fontWeight:
+                                                                FontWeight.w500)))
                                                 : SizedBox(),
                                           ),
                                           SizedBox(width: 10),
                                           Expanded(
-                                            child: controller.textEditingControllerThk.text.isNotEmpty
+                                            child: controller
+                                                    .textEditingControllerThk
+                                                    .text
+                                                    .isNotEmpty
                                                 ? Container(
-                                                alignment: Alignment.center,
-                                                // padding: EdgeInsets.symmetric(horizontal: 10),
-                                                decoration: BoxDecoration(borderRadius: BorderRadius.circular(12)),
-                                                child: Text(
-                                                    (Utils.parseToDouble(controller.textEditingControllerThk.text, toMM: true)).toStringAsFixed(2),
-                                                    maxLines: 2,
-                                                    overflow: TextOverflow.clip,
-                                                    style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w500)))
+                                                    alignment: Alignment.center,
+                                                    // padding: EdgeInsets.symmetric(horizontal: 10),
+                                                    decoration: BoxDecoration(
+                                                        borderRadius:
+                                                            BorderRadius.circular(
+                                                                12)),
+                                                    child: Text(
+                                                        (Utils.parseToDouble(controller.textEditingControllerThk.text,
+                                                                toMM: true))
+                                                            .toStringAsFixed(2),
+                                                        maxLines: 2,
+                                                        overflow:
+                                                            TextOverflow.clip,
+                                                        style: TextStyle(
+                                                            color: Colors.white,
+                                                            fontSize: 14,
+                                                            fontWeight:
+                                                                FontWeight.w500)))
                                                 : SizedBox(),
                                           ),
                                           SizedBox(width: 10),
                                           Expanded(
-                                            child: controller.textEditingControllerId.text.isNotEmpty
+                                            child: controller
+                                                    .textEditingControllerId
+                                                    .text
+                                                    .isNotEmpty
                                                 ? Container(
-                                                alignment: Alignment.center,
-                                                // padding: EdgeInsets.symmetric(horizontal: 10),
-                                                decoration: BoxDecoration(borderRadius: BorderRadius.circular(12)),
-                                                child: Text(
-                                                    (Utils.parseToDouble(controller.textEditingControllerId.text, toMM: true)).toStringAsFixed(2),
-                                                    maxLines: 2,
-                                                    overflow: TextOverflow.clip,
-                                                    style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w500)))
+                                                    alignment: Alignment.center,
+                                                    // padding: EdgeInsets.symmetric(horizontal: 10),
+                                                    decoration: BoxDecoration(
+                                                        borderRadius:
+                                                            BorderRadius.circular(
+                                                                12)),
+                                                    child: Text(
+                                                        (Utils.parseToDouble(controller.textEditingControllerId.text,
+                                                                toMM: true))
+                                                            .toStringAsFixed(2),
+                                                        maxLines: 2,
+                                                        overflow:
+                                                            TextOverflow.clip,
+                                                        style: TextStyle(
+                                                            color: Colors.white,
+                                                            fontSize: 14,
+                                                            fontWeight:
+                                                                FontWeight.w500)))
                                                 : SizedBox(),
                                           ),
                                           // SizedBox(width: 10),
@@ -441,7 +518,10 @@ class _ManualViewState extends State<ManualView> {
                     ? Keyboard((value) {
                         setState(() {
                           try {
-                            print(controller.textEditingControllerId.text.substring(controller.textEditingControllerId.text.length - 3));
+                            print(controller.textEditingControllerId.text
+                                .substring(controller
+                                        .textEditingControllerId.text.length -
+                                    3));
                           } catch (e) {
                             print('object');
                           }
@@ -454,7 +534,10 @@ class _ManualViewState extends State<ManualView> {
                     : InchKeyboard((value) {
                         setState(() {
                           try {
-                            print(controller.textEditingControllerId.text.substring(controller.textEditingControllerId.text.length - 3));
+                            print(controller.textEditingControllerId.text
+                                .substring(controller
+                                        .textEditingControllerId.text.length -
+                                    3));
                           } catch (e) {
                             print('object');
                           }
@@ -467,11 +550,14 @@ class _ManualViewState extends State<ManualView> {
               if (controller.isComputed.value) ...[
                 Container(
                   clipBehavior: Clip.antiAlias,
-                  decoration: BoxDecoration(borderRadius: BorderRadius.circular(6)),
+                  decoration:
+                      BoxDecoration(borderRadius: BorderRadius.circular(6)),
                   child: Table(
                     border: TableBorder(
-                      horizontalInside: BorderSide(width: 1, color: Colors.grey.shade300),
-                      verticalInside: BorderSide(width: 1, color: Colors.grey.shade300),
+                      horizontalInside:
+                          BorderSide(width: 1, color: Colors.grey.shade300),
+                      verticalInside:
+                          BorderSide(width: 1, color: Colors.grey.shade300),
                     ),
                     children: [
                       TableRow(
@@ -480,31 +566,61 @@ class _ManualViewState extends State<ManualView> {
                         ),
                         children: [
                           TableCell(
-                            child: SizedBox(height: 40, child: Center(child: Text(' ', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16)))),
+                            child: SizedBox(
+                                height: 40,
+                                child: Center(
+                                    child: Text(' ',
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 16)))),
                           ),
                           TableCell(
                             child: Container(
                                 color: AppColor.primaryBlueColor,
                                 height: 40,
-                                child: Center(child: Text('kg/m', maxLines: 1, style: TextStyle(color: Colors.white,fontWeight: FontWeight.w600, fontSize: 16)))),
+                                child: Center(
+                                    child: Text('kg/m',
+                                        maxLines: 1,
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 16)))),
                           ),
                           TableCell(
                             child: Container(
                                 color: AppColor.primaryBlueColor,
                                 height: 40,
-                                child: Center(child: Text('kg/ft', maxLines: 1, style: TextStyle(color: Colors.white,fontWeight: FontWeight.w600, fontSize: 16)))),
+                                child: Center(
+                                    child: Text('kg/ft',
+                                        maxLines: 1,
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 16)))),
                           ),
                           TableCell(
                             child: Container(
                                 color: AppColor.primaryBlueColor,
                                 height: 40,
-                                child: Center(child: Text('lbs/m', maxLines: 1, style: TextStyle(color: Colors.white,fontWeight: FontWeight.w600, fontSize: 16)))),
+                                child: Center(
+                                    child: Text('lbs/m',
+                                        maxLines: 1,
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 16)))),
                           ),
                           TableCell(
                             child: Container(
                                 color: AppColor.primaryBlueColor,
                                 height: 40,
-                                child: Center(child: Text('lbs/feet', maxLines: 1, style: TextStyle(color: Colors.white,fontWeight: FontWeight.w600, fontSize: 16)))),
+                                child: Center(
+                                    child: Text('lbs/feet',
+                                        maxLines: 1,
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 16)))),
                           ),
                         ],
                       ),
@@ -514,38 +630,63 @@ class _ManualViewState extends State<ManualView> {
                           ),
                           children: [
                             TableCell(
-                              child:
-                                  Container(
-                                      color: Colors.red,
-                                      height: 40, child: Center(child: Text('CS', style: TextStyle(color: Colors.white,fontWeight: FontWeight.w600, fontSize: 16)))),
+                              child: Container(
+                                  color: Colors.red,
+                                  height: 40,
+                                  child: Center(
+                                      child: Text('CS',
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.w600,
+                                              fontSize: 16)))),
                             ),
                             TableCell(
                               child: SizedBox(
                                   height: 40,
                                   child: Center(
-                                      child: Text(controller.kgm.toStringAsFixed(2),
-                                          maxLines: 1, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16)))),
+                                      child: Text(
+                                          controller.kgm.toStringAsFixed(2),
+                                          maxLines: 1,
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.w600,
+                                              fontSize: 16)))),
                             ),
                             TableCell(
                               child: SizedBox(
                                   height: 40,
                                   child: Center(
-                                      child: Text((controller.kgm / 3.2808).toStringAsFixed(2),
-                                          maxLines: 1, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16)))),
+                                      child: Text(
+                                          (controller.kgm / 3.2808)
+                                              .toStringAsFixed(2),
+                                          maxLines: 1,
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.w600,
+                                              fontSize: 16)))),
                             ),
                             TableCell(
                               child: SizedBox(
                                   height: 40,
                                   child: Center(
-                                      child: Text((controller.kgm * 2.2046226).toStringAsFixed(2),
-                                          maxLines: 1, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16)))),
+                                      child: Text(
+                                          (controller.kgm * 2.2046226)
+                                              .toStringAsFixed(2),
+                                          maxLines: 1,
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.w600,
+                                              fontSize: 16)))),
                             ),
                             TableCell(
                               child: SizedBox(
                                   height: 40,
                                   child: Center(
-                                      child: Text(((controller.kgm * 2.2046226) / 3.2808).toStringAsFixed(2),
-                                          maxLines: 1, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16)))),
+                                      child: Text(
+                                          ((controller.kgm * 2.2046226) /
+                                                  3.2808)
+                                              .toStringAsFixed(2),
+                                          maxLines: 1,
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.w600,
+                                              fontSize: 16)))),
                             ),
                           ]),
                       TableRow(
@@ -555,41 +696,66 @@ class _ManualViewState extends State<ManualView> {
                           children: [
                             TableCell(
                               child: Container(
-                                      color: Colors.red,
-                                      height: 40, child: Center(child: Text('SS', style: TextStyle(color: Colors.white,fontWeight: FontWeight.w600, fontSize: 16))),
+                                color: Colors.red,
+                                height: 40,
+                                child: Center(
+                                    child: Text('SS',
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 16))),
                               ),
                             ),
                             TableCell(
                               child: SizedBox(
                                   height: 40,
                                   child: Center(
-                                      child: Text(controller.ckgm.toStringAsFixed(2),
-                                          maxLines: 1, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16)))),
+                                      child: Text(
+                                          controller.ckgm.toStringAsFixed(2),
+                                          maxLines: 1,
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.w600,
+                                              fontSize: 16)))),
                             ),
                             TableCell(
                               child: SizedBox(
                                   height: 40,
                                   child: Center(
-                                      child: Text((controller.ckgm / 3.2808).toStringAsFixed(2),
-                                          maxLines: 1, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16)))),
+                                      child: Text(
+                                          (controller.ckgm / 3.2808)
+                                              .toStringAsFixed(2),
+                                          maxLines: 1,
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.w600,
+                                              fontSize: 16)))),
                             ),
                             TableCell(
                               child: SizedBox(
-                                  height: 40,
-                                  child: Center(
-                                      child: Text((controller.ckgm * 2.2046226).toStringAsFixed(2),
-                                          maxLines: 1, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
-                                      ),
+                                height: 40,
+                                child: Center(
+                                  child: Text(
+                                    (controller.ckgm * 2.2046226)
+                                        .toStringAsFixed(2),
+                                    maxLines: 1,
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 16),
                                   ),
+                                ),
                               ),
                             ),
                             TableCell(
                               child: SizedBox(
-                                  height: 40,
-                                  child: Center(
-                                      child: Text(((controller.ckgm * 2.2046226) / 3.2808).toStringAsFixed(2),
-                                          maxLines: 1, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16)),
-                                  ),
+                                height: 40,
+                                child: Center(
+                                  child: Text(
+                                      ((controller.ckgm * 2.2046226) / 3.2808)
+                                          .toStringAsFixed(2),
+                                      maxLines: 1,
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 16)),
+                                ),
                               ),
                             ),
                           ]),
@@ -601,7 +767,9 @@ class _ManualViewState extends State<ManualView> {
                   Expanded(
                     child: Container(
                       padding: EdgeInsets.symmetric(vertical: 5),
-                      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(6)),
+                      decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(6)),
                       child: TextField(
                         // controller: controller.textEditingControllerOd,
                         // focusNode: controller.focusNodeOd,
@@ -631,7 +799,6 @@ class _ManualViewState extends State<ManualView> {
                   Expanded(
                     child: GestureDetector(
                       onTap: () {
-
                         showDialog(
                           context: context,
                           builder: (context) {
@@ -641,10 +808,12 @@ class _ManualViewState extends State<ManualView> {
                               child: Dialog(
                                 backgroundColor: Colors.white,
                                 clipBehavior: Clip.antiAlias,
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16)),
                                 child: SizedBox(
                                   // padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-                                  height: MediaQuery.of(context).size.height * 0.6,
+                                  height:
+                                      MediaQuery.of(context).size.height * 0.6,
                                   child: Obx(() {
                                     return Column(
                                       mainAxisSize: MainAxisSize.min,
@@ -654,7 +823,8 @@ class _ManualViewState extends State<ManualView> {
                                             // borderRadius: BorderRadius.(8),
                                             color: AppColor.primaryBlueColor,
                                           ),
-                                          padding: EdgeInsets.symmetric(vertical: 15),
+                                          padding: EdgeInsets.symmetric(
+                                              vertical: 15),
                                           child: Column(children: [
                                             Text(
                                               'Exchange Currency',
@@ -666,25 +836,46 @@ class _ManualViewState extends State<ManualView> {
                                             ),
                                             SizedBox(height: 10),
                                             Padding(
-                                              padding: const EdgeInsets.symmetric(horizontal: 12),
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 12),
                                               child: SizedBox(
                                                 height: 40,
                                                 child: TextField(
                                                   onChanged: (value) {
-                                                    controller.filterCurrencyList(value);
+                                                    controller
+                                                        .filterCurrencyList(
+                                                            value);
                                                   },
                                                   decoration: InputDecoration(
-                                                    contentPadding: EdgeInsets.symmetric(horizontal: 10),
+                                                    contentPadding:
+                                                        EdgeInsets.symmetric(
+                                                            horizontal: 10),
                                                     hintText: 'Search Currency',
-                                                    hintStyle: TextStyle(color: Colors.grey),
+                                                    hintStyle: TextStyle(
+                                                        color: Colors.grey),
                                                     filled: true,
                                                     fillColor: Colors.white,
-                                                    enabledBorder: OutlineInputBorder(
-                                                        borderRadius: BorderRadius.circular(8),
-                                                        borderSide: BorderSide(color: Colors.white)),
-                                                    focusedBorder: OutlineInputBorder(
-                                                        borderRadius: BorderRadius.circular(8),
-                                                        borderSide: BorderSide(color: Colors.white)),
+                                                    enabledBorder:
+                                                        OutlineInputBorder(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        8),
+                                                            borderSide:
+                                                                BorderSide(
+                                                                    color: Colors
+                                                                        .white)),
+                                                    focusedBorder:
+                                                        OutlineInputBorder(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        8),
+                                                            borderSide:
+                                                                BorderSide(
+                                                                    color: Colors
+                                                                        .white)),
                                                   ),
                                                 ),
                                               ),
@@ -693,17 +884,24 @@ class _ManualViewState extends State<ManualView> {
                                         ),
                                         Expanded(
                                           child: SingleChildScrollView(
-                                            padding: EdgeInsets.symmetric(vertical: 10),
+                                            padding: EdgeInsets.symmetric(
+                                                vertical: 10),
                                             child: Column(
                                               children: [
-                                                if (!controller.isFiltered.value) ...[
+                                                if (!controller
+                                                    .isFiltered.value) ...[
                                                   Row(
                                                     children: [
                                                       Expanded(
                                                         child: Padding(
-                                                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .symmetric(
+                                                                  horizontal:
+                                                                      10),
                                                           child: Divider(
-                                                            color: Colors.grey.shade400,
+                                                            color: Colors
+                                                                .grey.shade400,
                                                             thickness: 1,
                                                           ),
                                                         ),
@@ -712,14 +910,20 @@ class _ManualViewState extends State<ManualView> {
                                                         'Popular Currencies',
                                                         style: TextStyle(
                                                           fontSize: 18,
-                                                          fontWeight: FontWeight.w500,
+                                                          fontWeight:
+                                                              FontWeight.w500,
                                                         ),
                                                       ),
                                                       Expanded(
                                                         child: Padding(
-                                                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .symmetric(
+                                                                  horizontal:
+                                                                      10),
                                                           child: Divider(
-                                                            color: Colors.grey.shade400,
+                                                            color: Colors
+                                                                .grey.shade400,
                                                             thickness: 1,
                                                           ),
                                                         ),
@@ -728,18 +932,35 @@ class _ManualViewState extends State<ManualView> {
                                                   ),
                                                   Column(
                                                     children: List.generate(
-                                                      controller.suggestedList.length,
-                                                          (index) {
-                                                        var country = controller.suggestedList[index];
-                                                        if (country.isNotEmpty) {
-                                                          if (controller.selectedCurrency.isNotEmpty) {
-                                                            if (controller.selectedCurrency[0] == country[0]) {
+                                                      controller
+                                                          .suggestedList.length,
+                                                      (index) {
+                                                        var country = controller
+                                                                .suggestedList[
+                                                            index];
+                                                        if (country
+                                                            .isNotEmpty) {
+                                                          if (controller
+                                                              .selectedCurrency
+                                                              .isNotEmpty) {
+                                                            if (controller
+                                                                        .selectedCurrency[
+                                                                    0] ==
+                                                                country[0]) {
                                                               return ListTile(
-                                                                minTileHeight: 40,
+                                                                minTileHeight:
+                                                                    40,
                                                                 onTap: () {
-
-                                                                  controller.selectedCurrency.value = controller.suggestedList[index];
-                                                                  controller.fetchCurrencyDetails(controller.selectedCurrency[0].toString());
+                                                                  controller
+                                                                      .selectedCurrency
+                                                                      .value = controller
+                                                                          .suggestedList[
+                                                                      index];
+                                                                  controller.fetchCurrencyDetails(
+                                                                      controller
+                                                                          .selectedCurrency[
+                                                                              0]
+                                                                          .toString());
                                                                   Get.back();
                                                                 },
                                                                 // onTap: () {
@@ -748,23 +969,40 @@ class _ManualViewState extends State<ManualView> {
                                                                 //
                                                                 //   Get.back();
                                                                 // },
-                                                                title: Text(country[0] + ' - ' + country[1]),
-                                                                trailing:
-                                                                Icon(Icons.check_circle, color: AppColor.primaryBlueColor, size: 25),
+                                                                title: Text(
+                                                                    country[0] +
+                                                                        ' - ' +
+                                                                        country[
+                                                                            1]),
+                                                                trailing: Icon(
+                                                                    Icons
+                                                                        .check_circle,
+                                                                    color: AppColor
+                                                                        .primaryBlueColor,
+                                                                    size: 25),
                                                               );
                                                             }
                                                           }
 
                                                           return ListTile(
-
                                                             minTileHeight: 40,
                                                             onTap: () {
-
-                                                              controller.selectedCurrency.value = controller.suggestedList[index];
-                                                              controller.fetchCurrencyDetails(controller.selectedCurrency[0].toString());
+                                                              controller
+                                                                  .selectedCurrency
+                                                                  .value = controller
+                                                                      .suggestedList[
+                                                                  index];
+                                                              controller.fetchCurrencyDetails(
+                                                                  controller
+                                                                      .selectedCurrency[
+                                                                          0]
+                                                                      .toString());
                                                               Get.back();
                                                             },
-                                                            title: Text(country[0] + ' - ' + country[1]),
+                                                            title: Text(
+                                                                country[0] +
+                                                                    ' - ' +
+                                                                    country[1]),
                                                           );
                                                         } else {
                                                           return SizedBox();
@@ -776,9 +1014,14 @@ class _ManualViewState extends State<ManualView> {
                                                     children: [
                                                       Expanded(
                                                         child: Padding(
-                                                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .symmetric(
+                                                                  horizontal:
+                                                                      10),
                                                           child: Divider(
-                                                            color: Colors.grey.shade300,
+                                                            color: Colors
+                                                                .grey.shade300,
                                                             thickness: 1,
                                                           ),
                                                         ),
@@ -787,14 +1030,20 @@ class _ManualViewState extends State<ManualView> {
                                                         'All',
                                                         style: TextStyle(
                                                           fontSize: 18,
-                                                          fontWeight: FontWeight.w500,
+                                                          fontWeight:
+                                                              FontWeight.w500,
                                                         ),
                                                       ),
                                                       Expanded(
                                                         child: Padding(
-                                                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .symmetric(
+                                                                  horizontal:
+                                                                      10),
                                                           child: Divider(
-                                                            color: Colors.grey.shade300,
+                                                            color: Colors
+                                                                .grey.shade300,
                                                             thickness: 1,
                                                           ),
                                                         ),
@@ -804,23 +1053,47 @@ class _ManualViewState extends State<ManualView> {
                                                 ],
                                                 Column(
                                                   children: List.generate(
-                                                    controller.filteredCountryList.length,
-                                                        (index) {
-                                                      var country = controller.filteredCountryList[index];
+                                                    controller
+                                                        .filteredCountryList
+                                                        .length,
+                                                    (index) {
+                                                      var country = controller
+                                                              .filteredCountryList[
+                                                          index];
                                                       if (country.isNotEmpty) {
-                                                        if (controller.selectedCurrency.isNotEmpty) {
-                                                          if (controller.selectedCurrency[0] == country[0]) {
+                                                        if (controller
+                                                            .selectedCurrency
+                                                            .isNotEmpty) {
+                                                          if (controller
+                                                                      .selectedCurrency[
+                                                                  0] ==
+                                                              country[0]) {
                                                             return ListTile(
                                                               minTileHeight: 40,
                                                               onTap: () {
-
-                                                                controller.selectedCurrency.value = controller.filteredCountryList[index];
-                                                                controller.fetchCurrencyDetails(controller.selectedCurrency[0].toString());
+                                                                controller
+                                                                    .selectedCurrency
+                                                                    .value = controller
+                                                                        .filteredCountryList[
+                                                                    index];
+                                                                controller.fetchCurrencyDetails(
+                                                                    controller
+                                                                        .selectedCurrency[
+                                                                            0]
+                                                                        .toString());
                                                                 Get.back();
                                                               },
-                                                              title: Text(country[0] + ' - ' + country[1]),
-                                                              trailing:
-                                                              Icon(Icons.check_circle, color: AppColor.primaryBlueColor, size: 25),
+                                                              title: Text(
+                                                                  country[0] +
+                                                                      ' - ' +
+                                                                      country[
+                                                                          1]),
+                                                              trailing: Icon(
+                                                                  Icons
+                                                                      .check_circle,
+                                                                  color: AppColor
+                                                                      .primaryBlueColor,
+                                                                  size: 25),
                                                             );
                                                           }
                                                         }
@@ -828,12 +1101,22 @@ class _ManualViewState extends State<ManualView> {
                                                         return ListTile(
                                                           minTileHeight: 40,
                                                           onTap: () {
-
-                                                            controller.selectedCurrency.value = controller.filteredCountryList[index];
-                                                            controller.fetchCurrencyDetails(controller.selectedCurrency[0].toString());
+                                                            controller
+                                                                .selectedCurrency
+                                                                .value = controller
+                                                                    .filteredCountryList[
+                                                                index];
+                                                            controller.fetchCurrencyDetails(
+                                                                controller
+                                                                    .selectedCurrency[
+                                                                        0]
+                                                                    .toString());
                                                             Get.back();
                                                           },
-                                                          title: Text(country[0] + ' - ' + country[1]),
+                                                          title: Text(
+                                                              country[0] +
+                                                                  ' - ' +
+                                                                  country[1]),
                                                         );
                                                       } else {
                                                         return SizedBox();
@@ -859,43 +1142,48 @@ class _ManualViewState extends State<ManualView> {
                       },
                       child: Container(
                         padding: EdgeInsets.symmetric(vertical: 5),
-                        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(6)),
-                        child: controller.loadingCurrency.value?
-                            Padding(
-                              padding: const EdgeInsets.all(5),
-                              child: Center(child: CircularProgressIndicator()),
-                            ):
-                        TextField(
-                          controller: controller.textEditingControllerExgRate,
-                          // focusNode: controller.focusNodeOd,
-                          // readOnly: true,
-                          // showCursor: false,
-                          enabled: false,
-                          keyboardType: TextInputType.number,
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontWeight: FontWeight.w500,
-                          ),
-                          decoration: InputDecoration(
-                            contentPadding: EdgeInsets.symmetric(horizontal: 10),
-                            labelText: 'Exchange Rate',
-                            border: InputBorder.none,
-                            enabledBorder: InputBorder.none,
-                            labelStyle: TextStyle(
-                              color: Colors.grey.shade600,
-                              fontWeight: FontWeight.w500,
-                              fontSize: 16,
-                            ),
-                            floatingLabelStyle: TextStyle(
-                              color: Colors.grey.shade700,
-                              fontWeight: FontWeight.w600,
-                              fontSize: 20,
-                            ),
-                          ),
-                          // onChanged: (value) {
-                          //   _getRates(exgRate: value);
-                          // },
-                        ),
+                        decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(6)),
+                        child: controller.loadingCurrency.value
+                            ? Padding(
+                                padding: const EdgeInsets.all(5),
+                                child:
+                                    Center(child: CircularProgressIndicator()),
+                              )
+                            : TextField(
+                                controller:
+                                    controller.textEditingControllerExgRate,
+                                // focusNode: controller.focusNodeOd,
+                                // readOnly: true,
+                                // showCursor: false,
+                                enabled: false,
+                                keyboardType: TextInputType.number,
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                                decoration: InputDecoration(
+                                  contentPadding:
+                                      EdgeInsets.symmetric(horizontal: 10),
+                                  labelText: 'Exchange Rate',
+                                  border: InputBorder.none,
+                                  enabledBorder: InputBorder.none,
+                                  labelStyle: TextStyle(
+                                    color: Colors.grey.shade600,
+                                    fontWeight: FontWeight.w500,
+                                    fontSize: 16,
+                                  ),
+                                  floatingLabelStyle: TextStyle(
+                                    color: Colors.grey.shade700,
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 20,
+                                  ),
+                                ),
+                                // onChanged: (value) {
+                                //   _getRates(exgRate: value);
+                                // },
+                              ),
                       ),
                     ),
                   )
@@ -919,7 +1207,9 @@ class _ManualViewState extends State<ManualView> {
                   Expanded(
                     child: Container(
                       padding: EdgeInsets.symmetric(vertical: 5),
-                      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(6)),
+                      decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(6)),
                       child: TextField(
                         enabled: false,
                         controller: controller.textEditingControllerRateKg,
@@ -957,7 +1247,9 @@ class _ManualViewState extends State<ManualView> {
                   Expanded(
                     child: Container(
                       padding: EdgeInsets.symmetric(vertical: 5),
-                      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(6)),
+                      decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(6)),
                       child: TextField(
                         enabled: false,
                         controller: controller.textEditingControllerRateLbs,
@@ -965,7 +1257,8 @@ class _ManualViewState extends State<ManualView> {
                         // readOnly: true,
                         // showCursor: true,
                         keyboardType: TextInputType.number,
-                        style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500),
+                        style: TextStyle(
+                            color: Colors.black, fontWeight: FontWeight.w500),
                         decoration: InputDecoration(
                           contentPadding: EdgeInsets.symmetric(horizontal: 10),
                           labelText: 'Rate (LBS)',
@@ -992,103 +1285,162 @@ class _ManualViewState extends State<ManualView> {
                 SizedBox(height: 20),
                 Obx(() {
                   controller.changing.value;
-                    return Container(
-                      clipBehavior: Clip.antiAlias,
-                      decoration: BoxDecoration(borderRadius: BorderRadius.circular(6)),
-                      child: Table(
-                        border: TableBorder(
-                          horizontalInside: BorderSide(width: 1, color: Colors.grey.shade300),
-                          verticalInside: BorderSide(width: 1, color: Colors.grey.shade300),
+                  return Container(
+                    clipBehavior: Clip.antiAlias,
+                    decoration:
+                        BoxDecoration(borderRadius: BorderRadius.circular(6)),
+                    child: Table(
+                      border: TableBorder(
+                        horizontalInside:
+                            BorderSide(width: 1, color: Colors.grey.shade300),
+                        verticalInside:
+                            BorderSide(width: 1, color: Colors.grey.shade300),
+                      ),
+                      children: [
+                        TableRow(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                          ),
+                          children: [
+                            TableCell(
+                              child: Container(
+                                  color: Colors.yellow,
+                                  height: 40,
+                                  child: Center(
+                                      child: Text(
+                                          controller.selectedCurrency.isNotEmpty
+                                              ? "In ${controller.selectedCurrency[0].toString()}"
+                                              : ' ',
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.w600,
+                                              fontSize: 16)))),
+                            ),
+                            TableCell(
+                              child: Container(
+                                  color: AppColor.primaryBlueColor,
+                                  height: 40,
+                                  child: Center(
+                                      child: Text('Rate/Meter',
+                                          maxLines: 1,
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.w600,
+                                              fontSize: 16)))),
+                            ),
+                            TableCell(
+                              child: Container(
+                                  color: AppColor.primaryBlueColor,
+                                  height: 40,
+                                  child: Center(
+                                      child: Text('Rate/feet',
+                                          maxLines: 1,
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.w600,
+                                              fontSize: 16)))),
+                            ),
+                          ],
                         ),
-                        children: [
-                          TableRow(
+                        TableRow(
                             decoration: BoxDecoration(
                               color: Colors.white,
                             ),
                             children: [
                               TableCell(
+                                child: Container(
+                                    color: Colors.red,
+                                    height: 40,
+                                    child: Center(
+                                        child: Text('CS',
+                                            style: TextStyle(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.w600,
+                                                fontSize: 16)))),
+                              ),
+                              TableCell(
                                 child: SizedBox(
-                                    height: 40, child: Center(child: Text(controller.selectedCurrency.isNotEmpty ? "In ${controller.selectedCurrency[0].toString()}" : ' ', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16)))),
+                                    height: 40,
+                                    child: Center(
+                                        child: Text(
+                                            (controller.kgm.value *
+                                                    Utils.parseToDouble(controller
+                                                        .textEditingControllerRateKg
+                                                        .text))
+                                                .toStringAsFixed(2),
+                                            maxLines: 1,
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.w600,
+                                                fontSize: 16)))),
                               ),
                               TableCell(
-                                child: Container(
-                                    color: AppColor.primaryBlueColor,
+                                child: SizedBox(
                                     height: 40,
-                                    child: Center(child: Text('Rate/Meter', maxLines: 1, style: TextStyle(color: Colors.white,fontWeight: FontWeight.w600, fontSize: 16)))),
+                                    child: Center(
+                                        child: Text(
+                                            ((controller.kgm / 3.2808) *
+                                                    Utils.parseToDouble(controller
+                                                        .textEditingControllerRateKg
+                                                        .text))
+                                                .toStringAsFixed(2),
+                                            maxLines: 1,
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.w600,
+                                                fontSize: 16)))),
                               ),
+                            ]),
+                        TableRow(
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                            ),
+                            children: [
                               TableCell(
                                 child: Container(
-                                    color: AppColor.primaryBlueColor,
+                                    color: Colors.red,
                                     height: 40,
-                                    child: Center(child: Text('Rate/feet', maxLines: 1, style: TextStyle(color: Colors.white,fontWeight: FontWeight.w600, fontSize: 16)))),
+                                    child: Center(
+                                        child: Text('SS',
+                                            style: TextStyle(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.w600,
+                                                fontSize: 16)))),
                               ),
-                            ],
-                          ),
-                          TableRow(
-                              decoration: BoxDecoration(
-                                color: Colors.white,
+                              TableCell(
+                                child: SizedBox(
+                                    height: 40,
+                                    child: Center(
+                                        child: Text(
+                                            (controller.ckgm *
+                                                    Utils.parseToDouble(controller
+                                                        .textEditingControllerRateLbs
+                                                        .text) *
+                                                    2.2046226)
+                                                .toStringAsFixed(2),
+                                            maxLines: 1,
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.w600,
+                                                fontSize: 16)))),
                               ),
-                              children: [
-                                TableCell(
-                                  child:
-                                      Container(color: Colors.red,height: 40, child: Center(child: Text('CS', style: TextStyle(color: Colors.white,fontWeight: FontWeight.w600, fontSize: 16)))),
-                                ),
-                                TableCell(
-                                  child: SizedBox(
-                                      height: 40,
-                                      child: Center(
-                                          child: Text(
-                                              (controller.kgm.value * Utils.parseToDouble(controller.textEditingControllerRateKg.text)).toStringAsFixed(2),
-                                              maxLines: 1,
-                                              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16)))),
-                                ),
-                                TableCell(
-                                  child: SizedBox(
-                                      height: 40,
-                                      child: Center(
-                                          child: Text(
-                                              ((controller.kgm / 3.2808) * Utils.parseToDouble(controller.textEditingControllerRateKg.text))
-                                                  .toStringAsFixed(2),
-                                              maxLines: 1,
-                                              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16)))),
-                                ),
-                              ]),
-                          TableRow(
-                              decoration: BoxDecoration(
-                                color: Colors.white,
+                              TableCell(
+                                child: SizedBox(
+                                    height: 40,
+                                    child: Center(
+                                        child: Text(
+                                            ((controller.ckgm / 3.2808) *
+                                                    Utils.parseToDouble(controller
+                                                        .textEditingControllerRateLbs
+                                                        .text) *
+                                                    2.2046226)
+                                                .toStringAsFixed(2),
+                                            maxLines: 1,
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.w600,
+                                                fontSize: 16)))),
                               ),
-                              children: [
-                                TableCell(
-                                  child:
-                                      Container(
-                                          color: Colors.red,
-                                          height: 40, child: Center(child: Text('SS', style: TextStyle(color: Colors.white,fontWeight: FontWeight.w600, fontSize: 16)))),
-                                ),
-                                TableCell(
-                                  child: SizedBox(
-                                      height: 40,
-                                      child: Center(
-                                          child: Text(
-                                              (controller.ckgm * Utils.parseToDouble(controller.textEditingControllerRateLbs.text) * 2.2046226)
-                                                  .toStringAsFixed(2),
-                                              maxLines: 1,
-                                              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16)))),
-                                ),
-                                TableCell(
-                                  child: SizedBox(
-                                      height: 40,
-                                      child: Center(
-                                          child: Text(
-                                              ((controller.ckgm / 3.2808) * Utils.parseToDouble(controller.textEditingControllerRateLbs.text) * 2.2046226)
-                                                  .toStringAsFixed(2),
-                                              maxLines: 1,
-                                              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16)))),
-                                ),
-                              ]),
-                        ],
-                      ),
-                    );
-                  }),
+                            ]),
+                      ],
+                    ),
+                  );
+                }),
               ]
             ],
           ),
@@ -1096,7 +1448,6 @@ class _ManualViewState extends State<ManualView> {
       ]);
     });
   }
-
 }
 
 class NotchedClipper extends CustomClipper<Path> {
@@ -1173,8 +1524,10 @@ class Keyboard extends StatelessWidget {
           const SizedBox(height: 1),
           ButtonRow([
             Button.big(text: 'C', color: Button.darkColor, cb: cb),
-            Button.big(text: '<', delete: true, color: Button.darkColor, cb: cb),
-            Button.big(text: '.', delete: false, color: Button.darkColor, cb: cb),
+            Button.big(
+                text: '<', delete: true, color: Button.darkColor, cb: cb),
+            Button.big(
+                text: '.', delete: false, color: Button.darkColor, cb: cb),
             Button.big(text: 'Enter', color: Button.darkColor, cb: cb),
             // Button(text: '<', color: Button.darkColor, cb: cb),
             // Button.operation(text: 'Enter', cb: cb),
@@ -1219,7 +1572,8 @@ class InchKeyboard extends StatelessWidget {
           ButtonRow([
             InchButton.big(text: '0', color: Button.darkColor, cb: cb),
             InchButton.big(text: '.', color: Button.darkColor, cb: cb),
-            InchButton.big(text: '<', delete: true, color: Button.darkColor, cb: cb),
+            InchButton.big(
+                text: '<', delete: true, color: Button.darkColor, cb: cb),
           ]),
           const SizedBox(height: 1),
           ButtonRow([
@@ -1244,7 +1598,9 @@ class ButtonRow extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: buttons.fold(<Widget>[], (list, b) {
-          list.isEmpty ? list.add(b) : list.addAll([const SizedBox(width: 1), b]);
+          list.isEmpty
+              ? list.add(b)
+              : list.addAll([const SizedBox(width: 1), b]);
           return list;
         }),
       ),
@@ -1314,8 +1670,11 @@ class Button extends StatelessWidget {
     return Expanded(
       flex: big ? 2 : 1,
       child: ElevatedButton(
-        style:
-            ElevatedButton.styleFrom(elevation: 0, shape: RoundedRectangleBorder(), backgroundColor: Colors.white, padding: EdgeInsets.symmetric()),
+        style: ElevatedButton.styleFrom(
+            elevation: 0,
+            shape: RoundedRectangleBorder(),
+            backgroundColor: Colors.white,
+            padding: EdgeInsets.symmetric()),
         onPressed: () => cb(text),
         child: delete == true
             ? Image.asset(AppImage.delete, height: 20)
@@ -1436,8 +1795,11 @@ class InchButton extends StatelessWidget {
     return Expanded(
       flex: big ? 2 : 1,
       child: ElevatedButton(
-        style:
-            ElevatedButton.styleFrom(elevation: 0, shape: RoundedRectangleBorder(), backgroundColor: Colors.white, padding: EdgeInsets.symmetric()),
+        style: ElevatedButton.styleFrom(
+            elevation: 0,
+            shape: RoundedRectangleBorder(),
+            backgroundColor: Colors.white,
+            padding: EdgeInsets.symmetric()),
         onPressed: () => cb(text),
         child: delete == true
             ? Image.asset(AppImage.delete, height: 20)
