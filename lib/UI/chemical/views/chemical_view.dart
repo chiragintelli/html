@@ -13,7 +13,8 @@ class ChemicalView extends GetView<ChemicalController> {
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      // controller.currencyDetails.value;
+      controller.selectedGrade.value; // Listen for selection changes
+
       return Column(children: [
         Container(
           decoration: BoxDecoration(color: AppColor.primaryBlueColor),
@@ -25,7 +26,8 @@ class ChemicalView extends GetView<ChemicalController> {
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Opacity(
                   opacity: 0,
-                  child: Icon(Icons.account_box_rounded,
+                  child: Icon(
+                    Icons.account_box_rounded,
                     color: Colors.white,
                     size: 40,
                   ),
@@ -40,7 +42,10 @@ class ChemicalView extends GetView<ChemicalController> {
                     ),
                     Text(
                       'Chemical Units',
-                      style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w600),
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
+                          fontWeight: FontWeight.w600),
                     ),
                     SizedBox(height: 10),
                     Text(
@@ -58,8 +63,10 @@ class ChemicalView extends GetView<ChemicalController> {
                   Get.toNamed(AppRoutes.profile);
                 },
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20,vertical: 20),
-                  child: Icon(Icons.account_circle_rounded,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                  child: Icon(
+                    Icons.account_circle_rounded,
                     color: Colors.white,
                     size: 40,
                   ),
@@ -104,7 +111,8 @@ class ChemicalView extends GetView<ChemicalController> {
                       child: ClipPath(
                         clipper: NotchedClipper(),
                         child: Container(
-                          padding: EdgeInsets.symmetric(vertical: 15, horizontal: 12),
+                          padding: EdgeInsets.symmetric(
+                              vertical: 15, horizontal: 12),
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(12),
                             gradient: LinearGradient(
@@ -125,93 +133,178 @@ class ChemicalView extends GetView<ChemicalController> {
                                   showModalBottomSheet(
                                     context: context,
                                     builder: (context) => Container(
-                                      padding: EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-                                      child: Column(
-                                        children: [
-                                          Text(
-                                            'Specification Grade Value',
-                                            style: TextStyle(
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.w600,
-                                            ),
-                                          ),
-                                          SizedBox(height: 8),
-                                          Expanded(
-                                            child: Container(
-                                              clipBehavior: Clip.hardEdge,
-                                              decoration: BoxDecoration(
-                                                  borderRadius: BorderRadius.circular(8), border: Border.all(width: 2, color: Colors.grey)),
-                                              child:
-                                              controller.globalChemicalMap.isEmpty?
-                                              Center(child: CircularProgressIndicator()):
-                                              Column(
-                                                children: [
-                                                  Container(
-                                                    decoration: BoxDecoration(
-                                                      color: Colors.grey.shade300,
-                                                      borderRadius: BorderRadius.only(topLeft: Radius.circular(8), topRight: Radius.circular(8)),
-                                                    ),
-                                                    height: 50,
-                                                    child: TextField(
-                                                      // controller: controller.controllerNps,
-                                                      textAlignVertical: TextAlignVertical.center,
-                                                      decoration: InputDecoration(
-                                                          contentPadding: EdgeInsets.zero,
-                                                          prefixIcon: Icon(Icons.search, size: 20),
-                                                          hintText: 'Search...',
-                                                          filled: false,
-                                                          fillColor: Colors.grey.shade300,
-                                                          border: InputBorder.none,
-                                                          enabledBorder: InputBorder.none),
-                                                    ),
-                                                  ),
-                                                  Expanded(
-                                                    child: ListView.separated(
-                                                      itemCount: controller.globalChemicalMap.length,
-                                                      itemBuilder: (BuildContext context, int index) {
-                                                        return ListTile(
-                                                          onTap: () {
-                                                            controller.selectedGrade.value = controller.globalChemicalMap.keys.elementAt(index);
-                                                            // controller.setNps();
-                                                            // controller.textEditingControllerOd.text = controller.nps[index];
-                                                            Get.back();
-                                                          },
-                                                          minTileHeight: 25,
-                                                          contentPadding: EdgeInsets.symmetric(horizontal: 10),
-                                                          title: Container(
-                                                            child: Text('${controller.globalChemicalMap.keys.elementAt(index)}'),
-                                                          ),
-                                                        );
-                                                      },
-                                                      separatorBuilder: (context, index) => Container(height: 1, color: Colors.grey),
-                                                    ),
-                                                  ),
-                                                ],
+                                      padding: EdgeInsets.symmetric(
+                                          vertical: 20, horizontal: 20),
+                                      child: Obx(() {
+                                        return Column(
+                                          children: [
+                                            Text(
+                                              'Specification Grade Value',
+                                              style: TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.w600,
                                               ),
                                             ),
-                                          )
-                                        ],
-                                      ),
+                                            SizedBox(height: 8),
+                                            Expanded(
+                                              child: Container(
+                                                clipBehavior: Clip.hardEdge,
+                                                decoration: BoxDecoration(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            8),
+                                                    border: Border.all(
+                                                        width: 2,
+                                                        color: Colors.grey)),
+                                                child: controller
+                                                        .globalChemicalMap
+                                                        .isEmpty
+                                                    ? Center(
+                                                        child:
+                                                            CircularProgressIndicator())
+                                                    : Column(
+                                                        children: [
+                                                          Container(
+                                                            decoration:
+                                                                BoxDecoration(
+                                                              color: Colors.grey
+                                                                  .shade300,
+                                                              borderRadius: BorderRadius.only(
+                                                                  topLeft: Radius
+                                                                      .circular(
+                                                                          8),
+                                                                  topRight: Radius
+                                                                      .circular(
+                                                                          8)),
+                                                            ),
+                                                            height: 50,
+                                                            child: TextField(
+                                                              // --- MODIFIED: Connected Controller and onChanged ---
+                                                              controller: controller
+                                                                  .searchController,
+                                                              onChanged: (value) =>
+                                                                  controller
+                                                                      .filterChemicalList(
+                                                                          value),
+                                                              textAlignVertical:
+                                                                  TextAlignVertical
+                                                                      .center,
+                                                              decoration: InputDecoration(
+                                                                  contentPadding:
+                                                                      EdgeInsets
+                                                                          .zero,
+                                                                  prefixIcon: Icon(
+                                                                      Icons
+                                                                          .search,
+                                                                      size: 20),
+                                                                  hintText:
+                                                                      'Search...',
+                                                                  filled: false,
+                                                                  fillColor: Colors
+                                                                      .grey
+                                                                      .shade300,
+                                                                  border:
+                                                                      InputBorder
+                                                                          .none,
+                                                                  enabledBorder:
+                                                                      InputBorder
+                                                                          .none),
+                                                            ),
+                                                          ),
+                                                          Expanded(
+                                                            child: ListView
+                                                                .separated(
+                                                              // itemCount: controller
+                                                              //     .globalChemicalMap
+                                                              //     .length,
+                                                              itemCount: controller
+                                                                  .filteredChemicalMap
+                                                                  .length,
+
+                                                              itemBuilder:
+                                                                  (BuildContext
+                                                                          context,
+                                                                      int index) {
+                                                                String grade = controller
+                                                                    .filteredChemicalMap
+                                                                    .keys
+                                                                    .elementAt(
+                                                                        index);
+                                                                return ListTile(
+                                                                  onTap: () {
+                                                                    controller
+                                                                        .selectedGrade
+                                                                        .value = grade;
+                                                                    Get.back();
+                                                                  },
+                                                                  minTileHeight:
+                                                                      25,
+                                                                  contentPadding:
+                                                                      EdgeInsets.symmetric(
+                                                                          horizontal:
+                                                                              10),
+                                                                  title: Text(
+                                                                      grade),
+                                                                );
+                                                              },
+                                                              separatorBuilder: (context,
+                                                                      index) =>
+                                                                  Container(
+                                                                      height: 1,
+                                                                      color: Colors
+                                                                          .grey),
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                              ),
+                                            )
+                                          ],
+                                        );
+                                      }),
                                     ),
-                                  );
+                                  ).then((_) {
+                                    // --- ADDED: Reset search when modal is closed ---
+                                    controller.resetSearch();
+                                    // ------------------------------------------------
+                                  });
                                 },
                                 child: Container(
-                                  padding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-                                  decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(8)),
+                                  padding: EdgeInsets.symmetric(
+                                      vertical: 5, horizontal: 10),
+                                  decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(8)),
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         'Specification-Grade',
-                                        style: TextStyle(color: Colors.grey.shade500),
+                                        style: TextStyle(
+                                            color: Colors.grey.shade500),
                                       ),
-                                      Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                                        Expanded(
-                                          child: Text(controller.selectedGrade.value.isNotEmpty ? controller.selectedGrade.value : 'Select Value',
-                                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
-                                        ),
-                                        Icon(Icons.keyboard_arrow_down_rounded, size: 28)
-                                      ])
+                                      Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Expanded(
+                                              child: Text(
+                                                  controller.selectedGrade.value
+                                                          .isNotEmpty
+                                                      ? controller
+                                                          .selectedGrade.value
+                                                      : 'Select Value',
+                                                  style: TextStyle(
+                                                      fontSize: 16,
+                                                      fontWeight:
+                                                          FontWeight.w500)),
+                                            ),
+                                            Icon(
+                                                Icons
+                                                    .keyboard_arrow_down_rounded,
+                                                size: 28)
+                                          ])
                                     ],
                                   ),
                                 ),
@@ -273,58 +366,81 @@ class ChemicalView extends GetView<ChemicalController> {
               SizedBox(height: 20),
               Container(
                 clipBehavior: Clip.antiAlias,
-                decoration: BoxDecoration(borderRadius: BorderRadius.circular(6)),
+                decoration:
+                    BoxDecoration(borderRadius: BorderRadius.circular(6)),
                 child: Table(
                   border: TableBorder(
-                    horizontalInside: BorderSide(width: 1, color: Colors.grey.shade300),
-                    verticalInside: BorderSide(width: 1, color: Colors.grey.shade300),
+                    horizontalInside:
+                        BorderSide(width: 1, color: Colors.grey.shade300),
+                    verticalInside:
+                        BorderSide(width: 1, color: Colors.grey.shade300),
                   ),
                   children: [
                     TableRow(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                        ),
-                        children: [
-                          TableCell(
-                            child: SizedBox(
-                                // color: Colors.red,
-                                height: 40,
-                                child: Center(child: Text('%C', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16,color: Colors.grey)))),
-                          ),
-                          TableCell(
-                            child: SizedBox(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                      ),
+                      children: [
+                        TableCell(
+                          child: SizedBox(
+                              // color: Colors.red,
                               height: 40,
                               child: Center(
-                                child: Text(
-                                  '%Mn',
-                                  maxLines: 1,
-                                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16,color: Colors.grey),
-                                ),
+                                  child: Text('%C',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 16,
+                                          color: Colors.grey)))),
+                        ),
+                        TableCell(
+                          child: SizedBox(
+                            height: 40,
+                            child: Center(
+                              child: Text(
+                                '%Mn',
+                                maxLines: 1,
+                                style: TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 16,
+                                    color: Colors.grey),
                               ),
                             ),
                           ),
-                          TableCell(
-                            child: SizedBox(
-                                height: 40,
-                                child: Center(
-                                    child: Text('%P',
-                                        maxLines: 1, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16,color: Colors.grey)))),
-                          ),
-                          TableCell(
-                            child: SizedBox(
-                                height: 40,
-                                child: Center(
-                                    child: Text('%S',
-                                        maxLines: 1, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16,color: Colors.grey)))),
-                          ),
-                          TableCell(
-                            child: SizedBox(
-                                height: 40,
-                                child: Center(
-                                    child: Text('%Si',
-                                        maxLines: 1, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16,color: Colors.grey)))),
-                          ),
-                        ],
+                        ),
+                        TableCell(
+                          child: SizedBox(
+                              height: 40,
+                              child: Center(
+                                  child: Text('%P',
+                                      maxLines: 1,
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 16,
+                                          color: Colors.grey)))),
+                        ),
+                        TableCell(
+                          child: SizedBox(
+                              height: 40,
+                              child: Center(
+                                  child: Text('%S',
+                                      maxLines: 1,
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 16,
+                                          color: Colors.grey)))),
+                        ),
+                        TableCell(
+                          child: SizedBox(
+                              height: 40,
+                              child: Center(
+                                  child: Text('%Si',
+                                      maxLines: 1,
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 16,
+                                          color: Colors.grey)))),
+                        ),
+                      ],
                     ),
                     TableRow(
                         decoration: BoxDecoration(
@@ -335,35 +451,86 @@ class ChemicalView extends GetView<ChemicalController> {
                             child: SizedBox(
                                 // color: Colors.red,
                                 height: 40,
-                                child: Center(child: Text(controller.selectedGrade.value.isNotEmpty?controller.globalChemicalMap[controller.selectedGrade.value]['%C'].toString():'--', style: TextStyle(fontWeight: FontWeight.w500, fontSize: 14)))),
+                                child: Center(
+                                    child: Text(
+                                        controller
+                                                .selectedGrade.value.isNotEmpty
+                                            ? controller.globalChemicalMap[
+                                                    controller.selectedGrade
+                                                        .value]['%C']
+                                                .toString()
+                                            : '--',
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.w500,
+                                            fontSize: 14)))),
                           ),
                           TableCell(
                             child: SizedBox(
                                 height: 40,
                                 child: Center(
-                                    child: Text(controller.selectedGrade.value.isNotEmpty?controller.globalChemicalMap[controller.selectedGrade.value]['%Mn'].toString():'--',
-                                        maxLines: 1, style: TextStyle(fontWeight: FontWeight.w500, fontSize: 14)))),
+                                    child: Text(
+                                        controller
+                                                .selectedGrade.value.isNotEmpty
+                                            ? controller.globalChemicalMap[
+                                                    controller.selectedGrade
+                                                        .value]['%Mn']
+                                                .toString()
+                                            : '--',
+                                        maxLines: 1,
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.w500,
+                                            fontSize: 14)))),
                           ),
                           TableCell(
                             child: SizedBox(
                                 height: 40,
                                 child: Center(
-                                    child: Text(controller.selectedGrade.value.isNotEmpty?controller.globalChemicalMap[controller.selectedGrade.value]['%P'].toString():'--',
-                                        maxLines: 1, style: TextStyle(fontWeight: FontWeight.w500, fontSize: 14)))),
+                                    child: Text(
+                                        controller
+                                                .selectedGrade.value.isNotEmpty
+                                            ? controller.globalChemicalMap[
+                                                    controller.selectedGrade
+                                                        .value]['%P']
+                                                .toString()
+                                            : '--',
+                                        maxLines: 1,
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.w500,
+                                            fontSize: 14)))),
                           ),
                           TableCell(
                             child: SizedBox(
                                 height: 40,
                                 child: Center(
-                                    child: Text(controller.selectedGrade.value.isNotEmpty?controller.globalChemicalMap[controller.selectedGrade.value]['%S'].toString():'--',
-                                        maxLines: 1, style: TextStyle(fontWeight: FontWeight.w500, fontSize: 14)))),
+                                    child: Text(
+                                        controller
+                                                .selectedGrade.value.isNotEmpty
+                                            ? controller.globalChemicalMap[
+                                                    controller.selectedGrade
+                                                        .value]['%S']
+                                                .toString()
+                                            : '--',
+                                        maxLines: 1,
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.w500,
+                                            fontSize: 14)))),
                           ),
                           TableCell(
                             child: SizedBox(
                                 height: 40,
                                 child: Center(
-                                    child: Text(controller.selectedGrade.value.isNotEmpty?controller.globalChemicalMap[controller.selectedGrade.value]['%Si'].toString():'--',
-                                        maxLines: 1, style: TextStyle(fontWeight: FontWeight.w500, fontSize: 14)))),
+                                    child: Text(
+                                        controller
+                                                .selectedGrade.value.isNotEmpty
+                                            ? controller.globalChemicalMap[
+                                                    controller.selectedGrade
+                                                        .value]['%Si']
+                                                .toString()
+                                            : '--',
+                                        maxLines: 1,
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.w500,
+                                            fontSize: 14)))),
                           ),
                         ]),
                   ],
@@ -372,11 +539,14 @@ class ChemicalView extends GetView<ChemicalController> {
               SizedBox(height: 20),
               Container(
                 clipBehavior: Clip.antiAlias,
-                decoration: BoxDecoration(borderRadius: BorderRadius.circular(6)),
+                decoration:
+                    BoxDecoration(borderRadius: BorderRadius.circular(6)),
                 child: Table(
                   border: TableBorder(
-                    horizontalInside: BorderSide(width: 1, color: Colors.grey.shade300),
-                    verticalInside: BorderSide(width: 1, color: Colors.grey.shade300),
+                    horizontalInside:
+                        BorderSide(width: 1, color: Colors.grey.shade300),
+                    verticalInside:
+                        BorderSide(width: 1, color: Colors.grey.shade300),
                   ),
                   children: [
                     TableRow(
@@ -386,9 +556,14 @@ class ChemicalView extends GetView<ChemicalController> {
                       children: [
                         TableCell(
                           child: SizedBox(
-                            // color: Colors.red,
+                              // color: Colors.red,
                               height: 40,
-                              child: Center(child: Text('%Cr', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16,color: Colors.grey)))),
+                              child: Center(
+                                  child: Text('%Cr',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 16,
+                                          color: Colors.grey)))),
                         ),
                         TableCell(
                           child: SizedBox(
@@ -397,7 +572,10 @@ class ChemicalView extends GetView<ChemicalController> {
                               child: Text(
                                 '%Cu',
                                 maxLines: 1,
-                                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16,color: Colors.grey),
+                                style: TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 16,
+                                    color: Colors.grey),
                               ),
                             ),
                           ),
@@ -407,21 +585,33 @@ class ChemicalView extends GetView<ChemicalController> {
                               height: 40,
                               child: Center(
                                   child: Text('%Mo',
-                                      maxLines: 1, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16,color: Colors.grey)))),
+                                      maxLines: 1,
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 16,
+                                          color: Colors.grey)))),
                         ),
                         TableCell(
                           child: SizedBox(
                               height: 40,
                               child: Center(
                                   child: Text('%Ni',
-                                      maxLines: 1, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16,color: Colors.grey)))),
+                                      maxLines: 1,
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 16,
+                                          color: Colors.grey)))),
                         ),
                         TableCell(
                           child: SizedBox(
                               height: 40,
                               child: Center(
                                   child: Text('%V',
-                                      maxLines: 1, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16,color: Colors.grey)))),
+                                      maxLines: 1,
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 16,
+                                          color: Colors.grey)))),
                         ),
                       ],
                     ),
@@ -432,37 +622,88 @@ class ChemicalView extends GetView<ChemicalController> {
                         children: [
                           TableCell(
                             child: SizedBox(
-                              // color: Colors.red,
+                                // color: Colors.red,
                                 height: 40,
-                                child: Center(child: Text(controller.selectedGrade.value.isNotEmpty?controller.globalChemicalMap[controller.selectedGrade.value]['%Cr'].toString():'--', style: TextStyle(fontWeight: FontWeight.w500, fontSize: 14)))),
+                                child: Center(
+                                    child: Text(
+                                        controller
+                                                .selectedGrade.value.isNotEmpty
+                                            ? controller.globalChemicalMap[
+                                                    controller.selectedGrade
+                                                        .value]['%Cr']
+                                                .toString()
+                                            : '--',
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.w500,
+                                            fontSize: 14)))),
                           ),
                           TableCell(
                             child: SizedBox(
                                 height: 40,
                                 child: Center(
-                                    child: Text(controller.selectedGrade.value.isNotEmpty?controller.globalChemicalMap[controller.selectedGrade.value]['%Cu'].toString():'--',
-                                        maxLines: 1, style: TextStyle(fontWeight: FontWeight.w500, fontSize: 14)))),
+                                    child: Text(
+                                        controller
+                                                .selectedGrade.value.isNotEmpty
+                                            ? controller.globalChemicalMap[
+                                                    controller.selectedGrade
+                                                        .value]['%Cu']
+                                                .toString()
+                                            : '--',
+                                        maxLines: 1,
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.w500,
+                                            fontSize: 14)))),
                           ),
                           TableCell(
                             child: SizedBox(
                                 height: 40,
                                 child: Center(
-                                    child: Text(controller.selectedGrade.value.isNotEmpty?controller.globalChemicalMap[controller.selectedGrade.value]['%Mo'].toString():'--',
-                                        maxLines: 1, style: TextStyle(fontWeight: FontWeight.w500, fontSize: 14)))),
+                                    child: Text(
+                                        controller
+                                                .selectedGrade.value.isNotEmpty
+                                            ? controller.globalChemicalMap[
+                                                    controller.selectedGrade
+                                                        .value]['%Mo']
+                                                .toString()
+                                            : '--',
+                                        maxLines: 1,
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.w500,
+                                            fontSize: 14)))),
                           ),
                           TableCell(
                             child: SizedBox(
                                 height: 40,
                                 child: Center(
-                                    child: Text(controller.selectedGrade.value.isNotEmpty?controller.globalChemicalMap[controller.selectedGrade.value]['%Ni'].toString():'--',
-                                        maxLines: 1, style: TextStyle(fontWeight: FontWeight.w500, fontSize: 14)))),
+                                    child: Text(
+                                        controller
+                                                .selectedGrade.value.isNotEmpty
+                                            ? controller.globalChemicalMap[
+                                                    controller.selectedGrade
+                                                        .value]['%Ni']
+                                                .toString()
+                                            : '--',
+                                        maxLines: 1,
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.w500,
+                                            fontSize: 14)))),
                           ),
                           TableCell(
                             child: SizedBox(
                                 height: 40,
                                 child: Center(
-                                    child: Text(controller.selectedGrade.value.isNotEmpty?controller.globalChemicalMap[controller.selectedGrade.value]['%V'].toString():'--',
-                                        maxLines: 1, style: TextStyle(fontWeight: FontWeight.w500, fontSize: 14)))),
+                                    child: Text(
+                                        controller
+                                                .selectedGrade.value.isNotEmpty
+                                            ? controller.globalChemicalMap[
+                                                    controller.selectedGrade
+                                                        .value]['%V']
+                                                .toString()
+                                            : '--',
+                                        maxLines: 1,
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.w500,
+                                            fontSize: 14)))),
                           ),
                         ]),
                   ],
@@ -471,11 +712,14 @@ class ChemicalView extends GetView<ChemicalController> {
               SizedBox(height: 20),
               Container(
                 clipBehavior: Clip.antiAlias,
-                decoration: BoxDecoration(borderRadius: BorderRadius.circular(6)),
+                decoration:
+                    BoxDecoration(borderRadius: BorderRadius.circular(6)),
                 child: Table(
                   border: TableBorder(
-                    horizontalInside: BorderSide(width: 1, color: Colors.grey.shade300),
-                    verticalInside: BorderSide(width: 1, color: Colors.grey.shade300),
+                    horizontalInside:
+                        BorderSide(width: 1, color: Colors.grey.shade300),
+                    verticalInside:
+                        BorderSide(width: 1, color: Colors.grey.shade300),
                   ),
                   children: [
                     TableRow(
@@ -485,9 +729,14 @@ class ChemicalView extends GetView<ChemicalController> {
                       children: [
                         TableCell(
                           child: SizedBox(
-                            // color: Colors.red,
+                              // color: Colors.red,
                               height: 40,
-                              child: Center(child: Text('%B', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16,color: Colors.grey)))),
+                              child: Center(
+                                  child: Text('%B',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 16,
+                                          color: Colors.grey)))),
                         ),
                         TableCell(
                           child: SizedBox(
@@ -496,7 +745,10 @@ class ChemicalView extends GetView<ChemicalController> {
                               child: Text(
                                 '%Nb',
                                 maxLines: 1,
-                                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16,color: Colors.grey),
+                                style: TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 16,
+                                    color: Colors.grey),
                               ),
                             ),
                           ),
@@ -506,21 +758,33 @@ class ChemicalView extends GetView<ChemicalController> {
                               height: 40,
                               child: Center(
                                   child: Text('%N',
-                                      maxLines: 1, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16,color: Colors.grey)))),
+                                      maxLines: 1,
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 16,
+                                          color: Colors.grey)))),
                         ),
                         TableCell(
                           child: SizedBox(
                               height: 40,
                               child: Center(
                                   child: Text('%Al',
-                                      maxLines: 1, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16,color: Colors.grey)))),
+                                      maxLines: 1,
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 16,
+                                          color: Colors.grey)))),
                         ),
                         TableCell(
                           child: SizedBox(
                               height: 40,
                               child: Center(
                                   child: Text('%Ti',
-                                      maxLines: 1, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16,color: Colors.grey)))),
+                                      maxLines: 1,
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 16,
+                                          color: Colors.grey)))),
                         ),
                       ],
                     ),
@@ -531,37 +795,88 @@ class ChemicalView extends GetView<ChemicalController> {
                         children: [
                           TableCell(
                             child: SizedBox(
-                              // color: Colors.red,
+                                // color: Colors.red,
                                 height: 40,
-                                child: Center(child: Text(controller.selectedGrade.value.isNotEmpty?controller.globalChemicalMap[controller.selectedGrade.value]['%B'].toString():'--', style: TextStyle(fontWeight: FontWeight.w500, fontSize: 14)))),
+                                child: Center(
+                                    child: Text(
+                                        controller
+                                                .selectedGrade.value.isNotEmpty
+                                            ? controller.globalChemicalMap[
+                                                    controller.selectedGrade
+                                                        .value]['%B']
+                                                .toString()
+                                            : '--',
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.w500,
+                                            fontSize: 14)))),
                           ),
                           TableCell(
                             child: SizedBox(
                                 height: 40,
                                 child: Center(
-                                    child: Text(controller.selectedGrade.value.isNotEmpty?controller.globalChemicalMap[controller.selectedGrade.value]['%Nb'].toString():'--',
-                                        maxLines: 1, style: TextStyle(fontWeight: FontWeight.w500, fontSize: 14)))),
+                                    child: Text(
+                                        controller
+                                                .selectedGrade.value.isNotEmpty
+                                            ? controller.globalChemicalMap[
+                                                    controller.selectedGrade
+                                                        .value]['%Nb']
+                                                .toString()
+                                            : '--',
+                                        maxLines: 1,
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.w500,
+                                            fontSize: 14)))),
                           ),
                           TableCell(
                             child: SizedBox(
                                 height: 40,
                                 child: Center(
-                                    child: Text(controller.selectedGrade.value.isNotEmpty?controller.globalChemicalMap[controller.selectedGrade.value]['%N'].toString():'--',
-                                        maxLines: 1, style: TextStyle(fontWeight: FontWeight.w500, fontSize: 14)))),
+                                    child: Text(
+                                        controller
+                                                .selectedGrade.value.isNotEmpty
+                                            ? controller.globalChemicalMap[
+                                                    controller.selectedGrade
+                                                        .value]['%N']
+                                                .toString()
+                                            : '--',
+                                        maxLines: 1,
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.w500,
+                                            fontSize: 14)))),
                           ),
                           TableCell(
                             child: SizedBox(
                                 height: 40,
                                 child: Center(
-                                    child: Text(controller.selectedGrade.value.isNotEmpty?controller.globalChemicalMap[controller.selectedGrade.value]['%Al'].toString():'--',
-                                        maxLines: 1, style: TextStyle(fontWeight: FontWeight.w500, fontSize: 14)))),
+                                    child: Text(
+                                        controller
+                                                .selectedGrade.value.isNotEmpty
+                                            ? controller.globalChemicalMap[
+                                                    controller.selectedGrade
+                                                        .value]['%Al']
+                                                .toString()
+                                            : '--',
+                                        maxLines: 1,
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.w500,
+                                            fontSize: 14)))),
                           ),
                           TableCell(
                             child: SizedBox(
                                 height: 40,
                                 child: Center(
-                                    child: Text(controller.selectedGrade.value.isNotEmpty?controller.globalChemicalMap[controller.selectedGrade.value]['%TI'].toString():'--',
-                                        maxLines: 1, style: TextStyle(fontWeight: FontWeight.w500, fontSize: 14)))),
+                                    child: Text(
+                                        controller
+                                                .selectedGrade.value.isNotEmpty
+                                            ? controller.globalChemicalMap[
+                                                    controller.selectedGrade
+                                                        .value]['%TI']
+                                                .toString()
+                                            : '--',
+                                        maxLines: 1,
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.w500,
+                                            fontSize: 14)))),
                           ),
                         ]),
                   ],
@@ -570,11 +885,14 @@ class ChemicalView extends GetView<ChemicalController> {
               SizedBox(height: 20),
               Container(
                 clipBehavior: Clip.antiAlias,
-                decoration: BoxDecoration(borderRadius: BorderRadius.circular(6)),
+                decoration:
+                    BoxDecoration(borderRadius: BorderRadius.circular(6)),
                 child: Table(
                   border: TableBorder(
-                    horizontalInside: BorderSide(width: 1, color: Colors.grey.shade300),
-                    verticalInside: BorderSide(width: 1, color: Colors.grey.shade300),
+                    horizontalInside:
+                        BorderSide(width: 1, color: Colors.grey.shade300),
+                    verticalInside:
+                        BorderSide(width: 1, color: Colors.grey.shade300),
                   ),
                   children: [
                     TableRow(
@@ -584,9 +902,14 @@ class ChemicalView extends GetView<ChemicalController> {
                       children: [
                         TableCell(
                           child: SizedBox(
-                            // color: Colors.red,
+                              // color: Colors.red,
                               height: 40,
-                              child: Center(child: Text('%Zr', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16,color: Colors.grey)))),
+                              child: Center(
+                                  child: Text('%Zr',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 16,
+                                          color: Colors.grey)))),
                         ),
                         TableCell(
                           child: SizedBox(
@@ -595,7 +918,10 @@ class ChemicalView extends GetView<ChemicalController> {
                               child: Text(
                                 'Hardness',
                                 maxLines: 1,
-                                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14,color: Colors.grey),
+                                style: TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 14,
+                                    color: Colors.grey),
                               ),
                             ),
                           ),
@@ -605,21 +931,33 @@ class ChemicalView extends GetView<ChemicalController> {
                               height: 40,
                               child: Center(
                                   child: Text('Y.S',
-                                      maxLines: 1, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16,color: Colors.grey)))),
+                                      maxLines: 1,
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 16,
+                                          color: Colors.grey)))),
                         ),
                         TableCell(
                           child: SizedBox(
                               height: 40,
                               child: Center(
                                   child: Text('U.T.S',
-                                      maxLines: 1, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16,color: Colors.grey)))),
+                                      maxLines: 1,
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 16,
+                                          color: Colors.grey)))),
                         ),
                         TableCell(
                           child: SizedBox(
                               height: 40,
                               child: Center(
                                   child: Text('%E',
-                                      maxLines: 1, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16,color: Colors.grey)))),
+                                      maxLines: 1,
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 16,
+                                          color: Colors.grey)))),
                         ),
                       ],
                     ),
@@ -630,37 +968,88 @@ class ChemicalView extends GetView<ChemicalController> {
                         children: [
                           TableCell(
                             child: SizedBox(
-                              // color: Colors.red,
+                                // color: Colors.red,
                                 height: 40,
-                                child: Center(child: Text(controller.selectedGrade.value.isNotEmpty?controller.globalChemicalMap[controller.selectedGrade.value]['%Zr'].toString():'--', style: TextStyle(fontWeight: FontWeight.w500, fontSize: 14)))),
+                                child: Center(
+                                    child: Text(
+                                        controller
+                                                .selectedGrade.value.isNotEmpty
+                                            ? controller.globalChemicalMap[
+                                                    controller.selectedGrade
+                                                        .value]['%Zr']
+                                                .toString()
+                                            : '--',
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.w500,
+                                            fontSize: 14)))),
                           ),
                           TableCell(
                             child: SizedBox(
                                 height: 40,
                                 child: Center(
-                                    child: Text(controller.selectedGrade.value.isNotEmpty?controller.globalChemicalMap[controller.selectedGrade.value]['Hardness'].toString():'--',
-                                        maxLines: 1, style: TextStyle(fontWeight: FontWeight.w500, fontSize: 14)))),
+                                    child: Text(
+                                        controller
+                                                .selectedGrade.value.isNotEmpty
+                                            ? controller.globalChemicalMap[
+                                                    controller.selectedGrade
+                                                        .value]['Hardness']
+                                                .toString()
+                                            : '--',
+                                        maxLines: 1,
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.w500,
+                                            fontSize: 14)))),
                           ),
                           TableCell(
                             child: SizedBox(
                                 height: 40,
                                 child: Center(
-                                    child: Text(controller.selectedGrade.value.isNotEmpty?controller.globalChemicalMap[controller.selectedGrade.value]['Y.S.'].toString():'--',
-                                        maxLines: 1, style: TextStyle(fontWeight: FontWeight.w500, fontSize: 14)))),
+                                    child: Text(
+                                        controller
+                                                .selectedGrade.value.isNotEmpty
+                                            ? controller.globalChemicalMap[
+                                                    controller.selectedGrade
+                                                        .value]['Y.S.']
+                                                .toString()
+                                            : '--',
+                                        maxLines: 1,
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.w500,
+                                            fontSize: 14)))),
                           ),
                           TableCell(
                             child: SizedBox(
                                 height: 40,
                                 child: Center(
-                                    child: Text(controller.selectedGrade.value.isNotEmpty?controller.globalChemicalMap[controller.selectedGrade.value]['U.T.S.'].toString():'--',
-                                        maxLines: 1, style: TextStyle(fontWeight: FontWeight.w500, fontSize: 14)))),
+                                    child: Text(
+                                        controller
+                                                .selectedGrade.value.isNotEmpty
+                                            ? controller.globalChemicalMap[
+                                                    controller.selectedGrade
+                                                        .value]['U.T.S.']
+                                                .toString()
+                                            : '--',
+                                        maxLines: 1,
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.w500,
+                                            fontSize: 14)))),
                           ),
                           TableCell(
                             child: SizedBox(
                                 height: 40,
                                 child: Center(
-                                    child: Text(controller.selectedGrade.value.isNotEmpty?controller.globalChemicalMap[controller.selectedGrade.value]['%E'].toString():'--',
-                                        maxLines: 1, style: TextStyle(fontWeight: FontWeight.w500, fontSize: 14)))),
+                                    child: Text(
+                                        controller
+                                                .selectedGrade.value.isNotEmpty
+                                            ? controller.globalChemicalMap[
+                                                    controller.selectedGrade
+                                                        .value]['%E']
+                                                .toString()
+                                            : '--',
+                                        maxLines: 1,
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.w500,
+                                            fontSize: 14)))),
                           ),
                         ]),
                   ],

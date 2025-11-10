@@ -1,7 +1,9 @@
+import 'dart:developer' as dev;
 import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:hmtl/Services/app_routes.dart';
 import 'package:hmtl/UI/manual/controllers/manual_controller.dart';
 import 'package:hmtl/Utils/app_colors.dart';
@@ -18,6 +20,49 @@ class ManualView extends StatefulWidget {
 
 class _ManualViewState extends State<ManualView> {
   ManualController controller = Get.put(ManualController());
+
+  @override
+  void initState() {
+    super.initState();
+
+    // --- MODIFIED LOGIC ---
+
+    // 1. Access the storage box
+    final box = GetStorage();
+
+    // 2. Try to load the primary currency set from Profile
+    //    (Make sure these keys 'primaryCurrencyCode' and 'primaryCurrencyName'
+    //    are the *exact same keys* you use in your ProfileController's setCurrency method)
+    String? savedCode = box.read('primaryCurrencyCode');
+    String? savedName = box.read('primaryCurrencyName');
+
+    if (savedCode != null && savedName != null) {
+      // 3a. A primary currency IS saved
+      dev.log('Loaded primary currency from storage: $savedCode',
+          name: 'ManualView.initState');
+      controller.selectedCurrency.value = [savedCode, savedName];
+
+      // 4a. Automatically fetch its exchange rate.
+      // This is the same logic your "Exchange Rate" dialog uses.
+      if (savedCode == 'INR') {
+        // Base currency, no API call needed
+        controller.textEditingControllerExgRate.text = '1.0';
+        controller.getRates(ex: '1.0'); // This populates Kg/Lbs fields
+      } else {
+        // Other currency, call the API to get rates
+        controller.fetchCurrencyDetails(savedCode);
+      }
+    } else {
+      // 3b. No primary currency saved (e.g., first app run)
+      dev.log('No primary currency found, defaulting to INR',
+          name: 'ManualView.initState');
+      if (controller.selectedCurrency.isEmpty) {
+        controller.selectedCurrency.value = ['INR', 'Indian Rupee'];
+        controller.textEditingControllerExgRate.text = '1.0';
+      }
+    }
+    // --- END MODIFIED LOGIC ---
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -762,6 +807,13 @@ class _ManualViewState extends State<ManualView> {
                     ],
                   ),
                 ),
+                // --- Add this import at the top of your file ---
+// ----------------------------------------------
+
+// ... (Your other imports: Flutter, Get, etc.)
+
+// ... (Your Widget's build method starts here)
+
                 SizedBox(height: 30),
                 Row(children: [
                   Expanded(
@@ -790,6 +842,9 @@ class _ManualViewState extends State<ManualView> {
                           ),
                         ),
                         onChanged: (value) {
+                          // <-- DEBUG
+                          dev.log('Rate TextField onChanged: $value',
+                              name: 'Input.Rate');
                           controller.getRates(r: value);
                         },
                       ),
@@ -799,6 +854,9 @@ class _ManualViewState extends State<ManualView> {
                   Expanded(
                     child: GestureDetector(
                       onTap: () {
+                        // <-- DEBUG
+                        dev.log('Tapped to open Exchange Currency dialog',
+                            name: 'UI.Tap');
                         showDialog(
                           context: context,
                           builder: (context) {
@@ -815,6 +873,10 @@ class _ManualViewState extends State<ManualView> {
                                   height:
                                       MediaQuery.of(context).size.height * 0.6,
                                   child: Obx(() {
+                                    // <-- DEBUG
+                                    dev.log(
+                                        'Currency Dialog Obx rebuilding. isFiltered: ${controller.isFiltered.value}',
+                                        name: 'UI.Dialog');
                                     return Column(
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
@@ -843,6 +905,11 @@ class _ManualViewState extends State<ManualView> {
                                                 height: 40,
                                                 child: TextField(
                                                   onChanged: (value) {
+                                                    // <-- DEBUG
+                                                    dev.log(
+                                                        'Currency Search onChanged: $value',
+                                                        name:
+                                                            'Input.DialogSearch');
                                                     controller
                                                         .filterCurrencyList(
                                                             value);
@@ -951,6 +1018,11 @@ class _ManualViewState extends State<ManualView> {
                                                                 minTileHeight:
                                                                     40,
                                                                 onTap: () {
+                                                                  // <-- DEBUG
+                                                                  dev.log(
+                                                                      'Tapped Popular (Selected): ${country[0]}',
+                                                                      name:
+                                                                          'UI.DialogTap');
                                                                   controller
                                                                       .selectedCurrency
                                                                       .value = controller
@@ -987,6 +1059,11 @@ class _ManualViewState extends State<ManualView> {
                                                           return ListTile(
                                                             minTileHeight: 40,
                                                             onTap: () {
+                                                              // <-- DEBUG
+                                                              dev.log(
+                                                                  'Tapped Popular (New): ${country[0]}',
+                                                                  name:
+                                                                      'UI.DialogTap');
                                                               controller
                                                                   .selectedCurrency
                                                                   .value = controller
@@ -1071,6 +1148,11 @@ class _ManualViewState extends State<ManualView> {
                                                             return ListTile(
                                                               minTileHeight: 40,
                                                               onTap: () {
+                                                                // <-- DEBUG
+                                                                dev.log(
+                                                                    'Tapped Filtered (Selected): ${country[0]}',
+                                                                    name:
+                                                                        'UI.DialogTap');
                                                                 controller
                                                                     .selectedCurrency
                                                                     .value = controller
@@ -1101,6 +1183,11 @@ class _ManualViewState extends State<ManualView> {
                                                         return ListTile(
                                                           minTileHeight: 40,
                                                           onTap: () {
+                                                            // <-- DEBUG
+                                                            dev.log(
+                                                                'Tapped Filtered (New): ${country[0]}',
+                                                                name:
+                                                                    'UI.DialogTap');
                                                             controller
                                                                 .selectedCurrency
                                                                 .value = controller
@@ -1136,6 +1223,9 @@ class _ManualViewState extends State<ManualView> {
                             );
                           },
                         ).then((value) {
+                          // <-- DEBUG
+                          dev.log('Currency Dialog closed. Resetting filter.',
+                              name: 'UI.Dialog');
                           controller.isFiltered(false);
                           controller.resetList();
                         });
@@ -1238,6 +1328,9 @@ class _ManualViewState extends State<ManualView> {
                           ),
                         ),
                         onSubmitted: (value) {
+                          // <-- DEBUG
+                          dev.log('Rate (KG) onSubmitted: $value',
+                              name: 'Input.RateKG');
                           controller.getRates(ex: value);
                         },
                       ),
@@ -1276,6 +1369,9 @@ class _ManualViewState extends State<ManualView> {
                           ),
                         ),
                         onSubmitted: (value) {
+                          // <-- DEBUG
+                          dev.log('Rate (LBS) onSubmitted: $value',
+                              name: 'Input.RateLBS');
                           controller.getRates(ex: value);
                         },
                       ),
@@ -1284,7 +1380,64 @@ class _ManualViewState extends State<ManualView> {
                 ]),
                 SizedBox(height: 20),
                 Obx(() {
-                  controller.changing.value;
+                  // <-- DEBUG: This is the most important debug block
+                  dev.log('--- Obx Table Rebuilding ---', name: 'Table.Calc');
+
+                  // 1. Log the trigger
+                  dev.log(
+                      'Trigger: controller.changing.value = ${controller.changing.value}',
+                      name: 'Table.Calc');
+
+                  // 2. Log all raw input values
+                  dev.log('Raw Input [kgm.value]: ${controller.kgm.value}',
+                      name: 'Table.Calc');
+                  dev.log('Raw Input [ckgm.value]: ${controller.ckgm.value}',
+                      name: 'Table.Calc');
+                  dev.log(
+                      'Raw Input [RateKg.text]: "${controller.textEditingControllerRateKg.text}"',
+                      name: 'Table.Calc');
+                  dev.log(
+                      'Raw Input [RateLbs.text]: "${controller.textEditingControllerRateLbs.text}"',
+                      name: 'Table.Calc');
+                  dev.log(
+                      'Raw Input [selectedCurrency]: ${controller.selectedCurrency.value}',
+                      name: 'Table.Calc');
+
+                  // 3. Log parsed values
+                  final double rateKg = Utils.parseToDouble(
+                      controller.textEditingControllerRateKg.text);
+                  final double rateLbs = Utils.parseToDouble(
+                      controller.textEditingControllerRateLbs.text);
+                  dev.log('Parsed [rateKg]: $rateKg', name: 'Table.Calc');
+                  dev.log('Parsed [rateLbs]: $rateLbs', name: 'Table.Calc');
+
+                  // 4. Log calculations for CS row
+                  final double csRatePerMeter = controller.kgm.value * rateKg;
+                  final double csRatePerFeet =
+                      (controller.kgm.value / 3.2808) * rateKg;
+                  dev.log(
+                      'CS Rate/Meter = (kgm * rateKg) = (${controller.kgm.value} * $rateKg) = $csRatePerMeter',
+                      name: 'Table.Calc');
+                  dev.log(
+                      'CS Rate/Feet = (kgm / 3.2808) * rateKg = (${controller.kgm.value} / 3.2808) * $rateKg = $csRatePerFeet',
+                      name: 'Table.Calc');
+
+                  // 5. Log calculations for SS row
+                  final double ssRatePerMeter =
+                      controller.ckgm.value * rateLbs * 2.2046226;
+                  final double ssRatePerFeet =
+                      (controller.ckgm.value / 3.2808) * rateLbs * 2.2046226;
+                  dev.log(
+                      'SS Rate/Meter = (ckgm * rateLbs * 2.20...) = (${controller.ckgm.value} * $rateLbs * 2.2046226) = $ssRatePerMeter',
+                      name: 'Table.Calc');
+                  dev.log(
+                      'SS Rate/Feet = (ckgm / 3.2808) * rateLbs * 2.20... = (${controller.ckgm.value} / 3.2808) * $rateLbs * 2.2046226) = $ssRatePerFeet',
+                      name: 'Table.Calc');
+
+                  dev.log('--- Obx Table Rebuild Complete ---',
+                      name: 'Table.Calc');
+                  // --- END DEBUG BLOCK ---
+
                   return Container(
                     clipBehavior: Clip.antiAlias,
                     decoration:
@@ -1303,14 +1456,13 @@ class _ManualViewState extends State<ManualView> {
                           ),
                           children: [
                             TableCell(
-                              child: Container(
-                                  color: Colors.yellow,
+                              child: SizedBox(
                                   height: 40,
                                   child: Center(
                                       child: Text(
                                           controller.selectedCurrency.isNotEmpty
                                               ? "In ${controller.selectedCurrency[0].toString()}"
-                                              : ' ',
+                                              : 'In INR', // <-- MODIFIED
                                           style: TextStyle(
                                               fontWeight: FontWeight.w600,
                                               fontSize: 16)))),
@@ -1362,11 +1514,8 @@ class _ManualViewState extends State<ManualView> {
                                     height: 40,
                                     child: Center(
                                         child: Text(
-                                            (controller.kgm.value *
-                                                    Utils.parseToDouble(controller
-                                                        .textEditingControllerRateKg
-                                                        .text))
-                                                .toStringAsFixed(2),
+                                            // Use the pre-calculated value
+                                            csRatePerMeter.toStringAsFixed(2),
                                             maxLines: 1,
                                             style: TextStyle(
                                                 fontWeight: FontWeight.w600,
@@ -1377,11 +1526,8 @@ class _ManualViewState extends State<ManualView> {
                                     height: 40,
                                     child: Center(
                                         child: Text(
-                                            ((controller.kgm / 3.2808) *
-                                                    Utils.parseToDouble(controller
-                                                        .textEditingControllerRateKg
-                                                        .text))
-                                                .toStringAsFixed(2),
+                                            // Use the pre-calculated value
+                                            csRatePerFeet.toStringAsFixed(2),
                                             maxLines: 1,
                                             style: TextStyle(
                                                 fontWeight: FontWeight.w600,
@@ -1409,12 +1555,8 @@ class _ManualViewState extends State<ManualView> {
                                     height: 40,
                                     child: Center(
                                         child: Text(
-                                            (controller.ckgm *
-                                                    Utils.parseToDouble(controller
-                                                        .textEditingControllerRateLbs
-                                                        .text) *
-                                                    2.2046226)
-                                                .toStringAsFixed(2),
+                                            // Use the pre-calculated value
+                                            ssRatePerMeter.toStringAsFixed(2),
                                             maxLines: 1,
                                             style: TextStyle(
                                                 fontWeight: FontWeight.w600,
@@ -1425,12 +1567,8 @@ class _ManualViewState extends State<ManualView> {
                                     height: 40,
                                     child: Center(
                                         child: Text(
-                                            ((controller.ckgm / 3.2808) *
-                                                    Utils.parseToDouble(controller
-                                                        .textEditingControllerRateLbs
-                                                        .text) *
-                                                    2.2046226)
-                                                .toStringAsFixed(2),
+                                            // Use the pre-calculated value
+                                            ssRatePerFeet.toStringAsFixed(2),
                                             maxLines: 1,
                                             style: TextStyle(
                                                 fontWeight: FontWeight.w600,
@@ -1441,6 +1579,8 @@ class _ManualViewState extends State<ManualView> {
                     ),
                   );
                 }),
+
+// ... (Rest of your widget code)
               ]
             ],
           ),

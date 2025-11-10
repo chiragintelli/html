@@ -1,6 +1,9 @@
+import 'dart:developer' as dev; // <-- ADDED
+
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart'; // <-- ADDED
 import 'package:hmtl/Services/app_routes.dart';
 import 'package:hmtl/UI/manual/views/manual_view.dart';
 import 'package:hmtl/UI/nps/controllers/nps_controller.dart';
@@ -18,6 +21,38 @@ class NpsView extends StatefulWidget {
 class _NpsViewState extends State<NpsView> {
   NpsController controller = Get.put(NpsController());
 
+  // --- ADDED: initState logic from ManualView ---
+  @override
+  void initState() {
+    super.initState();
+    dev.log('NpsView initState fired', name: 'NpsView.initState');
+    final box = GetStorage();
+    String? savedCode = box.read('primaryCurrencyCode');
+    String? savedName = box.read('primaryCurrencyName');
+
+    if (savedCode != null && savedName != null) {
+      dev.log('Loaded primary currency from storage: $savedCode',
+          name: 'NpsView.initState');
+      controller.selectedCurrency.value = [savedCode, savedName];
+
+      if (savedCode == 'INR') {
+        controller.textEditingControllerExgRate.text = '1.0';
+        controller.getRates(ex: '1.0');
+      } else {
+        controller.fetchCurrencyDetails(savedCode);
+      }
+    } else {
+      dev.log('No primary currency found, defaulting to INR',
+          name: 'NpsView.initState');
+      if (controller.selectedCurrency.isEmpty) {
+        controller.selectedCurrency.value = ['INR', 'Indian Rupee'];
+        controller.textEditingControllerExgRate.text = '1.0';
+      }
+    }
+  }
+
+  // ------------------------------------------
+
   @override
   Widget build(BuildContext context) {
     return Obx(() {
@@ -34,7 +69,8 @@ class _NpsViewState extends State<NpsView> {
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Opacity(
                   opacity: 0,
-                  child: Icon(Icons.account_box_rounded,
+                  child: Icon(
+                    Icons.account_box_rounded,
                     color: Colors.white,
                     size: 40,
                   ),
@@ -49,7 +85,10 @@ class _NpsViewState extends State<NpsView> {
                     ),
                     Text(
                       'Pipe Specifications',
-                      style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w600),
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
+                          fontWeight: FontWeight.w600),
                     ),
                     SizedBox(height: 10),
                     Text(
@@ -63,12 +102,14 @@ class _NpsViewState extends State<NpsView> {
               ),
               GestureDetector(
                 onTap: () {
-                  // Get.find<MainController>().currentPage.value = 2;
+                  dev.log('Tapped Profile Icon', name: 'NpsView.Tap');
                   Get.toNamed(AppRoutes.profile);
                 },
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20,vertical: 20),
-                  child: Icon(Icons.account_circle_rounded,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                  child: Icon(
+                    Icons.account_circle_rounded,
                     color: Colors.white,
                     size: 40,
                   ),
@@ -81,20 +122,7 @@ class _NpsViewState extends State<NpsView> {
           child: ListView(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
             children: [
-              // Container(
-              //   padding: EdgeInsets.symmetric(horizontal: 40),
-              //   child: Text(
-              //     'Enter pipe dimensions to calculate weights and costs',
-              //     style: TextStyle(
-              //       fontWeight: FontWeight.w600,
-              //       fontSize: 16,
-              //     ),
-              //     textAlign: TextAlign.center,
-              //   ),
-              // ),
-              // SizedBox(height: 20),
               Container(
-                // height: 15.h,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(12),
                   color: Colors.white,
@@ -113,7 +141,8 @@ class _NpsViewState extends State<NpsView> {
                       child: ClipPath(
                         clipper: NotchedClipper(),
                         child: Container(
-                          padding: EdgeInsets.symmetric(vertical: 15, horizontal: 12),
+                          padding: EdgeInsets.symmetric(
+                              vertical: 15, horizontal: 12),
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(12),
                             gradient: LinearGradient(
@@ -134,7 +163,8 @@ class _NpsViewState extends State<NpsView> {
                                   showModalBottomSheet(
                                     context: context,
                                     builder: (context) => Container(
-                                      padding: EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+                                      padding: EdgeInsets.symmetric(
+                                          vertical: 20, horizontal: 20),
                                       child: Column(
                                         children: [
                                           Text(
@@ -149,47 +179,88 @@ class _NpsViewState extends State<NpsView> {
                                             child: Container(
                                               clipBehavior: Clip.hardEdge,
                                               decoration: BoxDecoration(
-                                                  borderRadius: BorderRadius.circular(8), border: Border.all(width: 2, color: Colors.grey)),
+                                                  borderRadius:
+                                                      BorderRadius.circular(8),
+                                                  border: Border.all(
+                                                      width: 2,
+                                                      color: Colors.grey)),
                                               child: Column(
                                                 children: [
                                                   Container(
                                                     decoration: BoxDecoration(
-                                                      color: Colors.grey.shade300,
-                                                      borderRadius: BorderRadius.only(topLeft: Radius.circular(8), topRight: Radius.circular(8)),
+                                                      color:
+                                                          Colors.grey.shade300,
+                                                      borderRadius:
+                                                          BorderRadius.only(
+                                                              topLeft: Radius
+                                                                  .circular(8),
+                                                              topRight: Radius
+                                                                  .circular(8)),
                                                     ),
                                                     height: 50,
                                                     child: TextField(
-                                                      // controller: controller.controllerNps,
-                                                      textAlignVertical: TextAlignVertical.center,
-                                                      decoration: InputDecoration(
-                                                          contentPadding: EdgeInsets.zero,
-                                                          prefixIcon: Icon(Icons.search, size: 20),
-                                                          hintText: 'Search...',
-                                                          filled: false,
-                                                          fillColor: Colors.grey.shade300,
-                                                          border: InputBorder.none,
-                                                          enabledBorder: InputBorder.none),
+                                                      textAlignVertical:
+                                                          TextAlignVertical
+                                                              .center,
+                                                      decoration:
+                                                          InputDecoration(
+                                                              contentPadding:
+                                                                  EdgeInsets
+                                                                      .zero,
+                                                              prefixIcon: Icon(
+                                                                  Icons.search,
+                                                                  size: 20),
+                                                              hintText:
+                                                                  'Search...',
+                                                              filled: false,
+                                                              fillColor: Colors
+                                                                  .grey
+                                                                  .shade300,
+                                                              border:
+                                                                  InputBorder
+                                                                      .none,
+                                                              enabledBorder:
+                                                                  InputBorder
+                                                                      .none),
                                                     ),
                                                   ),
                                                   Expanded(
                                                     child: ListView.separated(
-                                                      itemCount: controller.globalNpsMap.length,
-                                                      itemBuilder: (BuildContext context, int index) {
+                                                      itemCount: controller
+                                                          .globalNpsMap.length,
+                                                      itemBuilder:
+                                                          (BuildContext context,
+                                                              int index) {
                                                         return ListTile(
                                                           onTap: () {
-                                                            controller.selectedNps.value = controller.globalNpsMap.keys.elementAt(index);
-                                                            // controller.setNps();
-                                                            // controller.textEditingControllerOd.text = controller.nps[index];
+                                                            controller
+                                                                    .selectedNps
+                                                                    .value =
+                                                                controller
+                                                                    .globalNpsMap
+                                                                    .keys
+                                                                    .elementAt(
+                                                                        index);
                                                             Get.back();
                                                           },
                                                           minTileHeight: 25,
-                                                          contentPadding: EdgeInsets.symmetric(horizontal: 10),
+                                                          contentPadding:
+                                                              EdgeInsets
+                                                                  .symmetric(
+                                                                      horizontal:
+                                                                          10),
                                                           title: Container(
-                                                            child: Text('${controller.globalNpsMap.keys.elementAt(index)}'),
+                                                            child: Text(
+                                                                '${controller.globalNpsMap.keys.elementAt(index)}'),
                                                           ),
                                                         );
                                                       },
-                                                      separatorBuilder: (context, index) => Container(height: 1, color: Colors.grey),
+                                                      separatorBuilder:
+                                                          (context, index) =>
+                                                              Container(
+                                                                  height: 1,
+                                                                  color: Colors
+                                                                      .grey),
                                                     ),
                                                   ),
                                                 ],
@@ -202,89 +273,129 @@ class _NpsViewState extends State<NpsView> {
                                   );
                                 },
                                 child: Container(
-                                  padding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-                                  decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(8)),
+                                  padding: EdgeInsets.symmetric(
+                                      vertical: 5, horizontal: 10),
+                                  decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(8)),
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         'NPS',
-                                        style: TextStyle(color: Colors.grey.shade500),
+                                        style: TextStyle(
+                                            color: Colors.grey.shade500),
                                       ),
-                                      Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                                        Text(controller.selectedNps.value.isNotEmpty ? controller.selectedNps.value : 'Select Value',
-                                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
-                                        Icon(Icons.keyboard_arrow_down_rounded, size: 28)
-                                      ])
+                                      Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text(
+                                                controller.selectedNps.value
+                                                        .isNotEmpty
+                                                    ? controller
+                                                        .selectedNps.value
+                                                    : 'Select Value',
+                                                style: TextStyle(
+                                                    fontSize: 16,
+                                                    fontWeight:
+                                                        FontWeight.w500)),
+                                            Icon(
+                                                Icons
+                                                    .keyboard_arrow_down_rounded,
+                                                size: 28)
+                                          ])
                                     ],
                                   ),
                                 ),
                               ),
                               SizedBox(height: 15),
                               Container(
-                                padding: EdgeInsets.symmetric(vertical: 5, horizontal: 0),
-                                decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(8)),
+                                padding: EdgeInsets.symmetric(
+                                    vertical: 5, horizontal: 0),
+                                decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(8)),
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Padding(
-                                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 10),
                                       child: Text(
                                         'Schedule',
-                                        style: TextStyle(color: Colors.grey.shade500),
+                                        style: TextStyle(
+                                            color: Colors.grey.shade500),
                                       ),
                                     ),
-                                    // Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                                    //   Text('Select Value', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
-                                    //   Icon(Icons.keyboard_arrow_down_rounded, size: 28)
-                                    // ]),
                                     Row(
                                       children: [
                                         Expanded(
                                           child: DropdownButton2(
-                                            value: controller.selectedSchedule.value.isEmpty
+                                            value: controller.selectedSchedule
+                                                    .value.isEmpty
                                                 ? null
-                                                : ((controller.globalNpsMap[controller.selectedNps.value] as List).any(
-                                                        (element) => element['schedule'].toString() == controller.selectedSchedule.value.toString()))
-                                                    ? controller.selectedSchedule.value
+                                                : ((controller.globalNpsMap[
+                                                            controller
+                                                                .selectedNps
+                                                                .value] as List)
+                                                        .any((element) =>
+                                                            element['schedule']
+                                                                .toString() ==
+                                                            controller
+                                                                .selectedSchedule
+                                                                .value
+                                                                .toString()))
+                                                    ? controller
+                                                        .selectedSchedule.value
                                                     : null,
                                             iconStyleData: IconStyleData(
                                               icon: Padding(
-                                                padding: const EdgeInsets.only(right: 10),
-                                                child: Icon(Icons.keyboard_arrow_down_rounded, size: 28),
+                                                padding: const EdgeInsets.only(
+                                                    right: 10),
+                                                child: Icon(
+                                                    Icons
+                                                        .keyboard_arrow_down_rounded,
+                                                    size: 28),
                                               ),
                                             ),
                                             isExpanded: true,
-                                            items: controller.globalNpsMap.isNotEmpty
-                                                ? (controller.globalNpsMap[controller.selectedNps.value] as List)
-                                                    .map((e) => DropdownMenuItem(value: e['schedule'], child: Text(e['schedule'].toString())))
+                                            items: controller
+                                                    .globalNpsMap.isNotEmpty
+                                                ? (controller.globalNpsMap[
+                                                        controller.selectedNps
+                                                            .value] as List)
+                                                    .map((e) =>
+                                                        DropdownMenuItem(
+                                                            value:
+                                                                e['schedule'],
+                                                            child: Text(e[
+                                                                    'schedule']
+                                                                .toString())))
                                                     .toList()
                                                 : [],
                                             onChanged: (value) {
-                                              controller.selectedSchedule.value = value.toString();
-                                              // var map = (controller.globalNpsMap[controller.selectedNps.value] as List)
-                                              //     .where((element) => element['schedule'] == value)
-                                              //     .first;
-                                              //
-                                              // print('object ${map}');
-                                              // controller.thkInch.value = map['thkInch'];
-                                              // controller.thkMm.value = map['thkMm'];
-                                              // controller.odInch.value = map['odInch'];
-                                              // controller.odMm.value = map['odMm'];
-                                              //
-                                              // controller.kgM.value = map['kgM'];
-                                              // controller.kgFt.value = map['kgFt'];
-                                              // controller.lbsM.value = map['lbsM'];
-                                              // controller.lbsFt.value = map['lbsFt'];
-                                              // controller.selectedNps.value = '';
+                                              controller.selectedSchedule
+                                                  .value = value.toString();
                                             },
                                             isDense: true,
                                             underline: SizedBox(),
-                                            menuItemStyleData: MenuItemStyleData(padding: EdgeInsets.symmetric(horizontal: 10)),
+                                            menuItemStyleData:
+                                                MenuItemStyleData(
+                                                    padding:
+                                                        EdgeInsets.symmetric(
+                                                            horizontal: 10)),
                                             buttonStyleData: ButtonStyleData(
-                                                height: 30, decoration: BoxDecoration(), padding: EdgeInsets.symmetric(horizontal: 0)),
-                                            // underline: SizedBox(),
-                                            hint: Text('Select Value', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Colors.black)),
+                                                height: 30,
+                                                decoration: BoxDecoration(),
+                                                padding: EdgeInsets.symmetric(
+                                                    horizontal: 0)),
+                                            hint: Text('Select Value',
+                                                style: TextStyle(
+                                                    fontSize: 16,
+                                                    fontWeight: FontWeight.w500,
+                                                    color: Colors.black)),
                                           ),
                                         ),
                                       ],
@@ -300,51 +411,6 @@ class _NpsViewState extends State<NpsView> {
                   ],
                 ),
               ),
-              // if(controller.selectedUnitIndex.value==1)...[
-              //   SizedBox(height: 10),
-              //   Container(
-              //     padding: EdgeInsets.symmetric(horizontal: 10),
-              //     decoration: BoxDecoration(borderRadius: BorderRadius.circular(12),color: Colors.white),
-              //     child: Column(
-              //       children: [
-              //         Text('In mm',style: TextStyle(fontSize: 16,fontWeight: FontWeight.w500),),
-              //         Row(
-              //           children: [
-              //             Expanded(
-              //               child:
-              //               controller.textEditingControllerOd.text.isNotEmpty?
-              //               Container(
-              //                   padding: EdgeInsets.symmetric(horizontal: 10),
-              //                   decoration: BoxDecoration(borderRadius: BorderRadius.circular(12)),
-              //                   child: Text('Od: ${Utils.parseToDouble(controller.textEditingControllerOd.text)*25.4}',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w500))
-              //               ):SizedBox(),
-              //             ),
-              //             SizedBox(width: 10),
-              //             Expanded(
-              //               child:
-              //               controller.textEditingControllerId.text.isNotEmpty?
-              //               Container(
-              //                   padding: EdgeInsets.symmetric(horizontal: 10),
-              //                   decoration: BoxDecoration(borderRadius: BorderRadius.circular(12)),
-              //                   child: Text('Id: ${Utils.parseToDouble(controller.textEditingControllerId.text)*25.4}',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w500))
-              //               ):SizedBox(),
-              //             ),
-              //             SizedBox(width: 10),
-              //             Expanded(
-              //               child:
-              //               controller.textEditingControllerThk.text.isNotEmpty?
-              //               Container(
-              //                   padding: EdgeInsets.symmetric(horizontal: 10),
-              //                   decoration: BoxDecoration(borderRadius: BorderRadius.circular(12)),
-              //                   child: Text('Thk: ${Utils.parseToDouble(controller.textEditingControllerThk.text)*25.4}',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w500))
-              //               ):SizedBox(),
-              //             ),
-              //           ],
-              //         ),
-              //       ],
-              //     ),
-              //   ),
-              // ],
               SizedBox(height: 20),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -355,6 +421,7 @@ class _NpsViewState extends State<NpsView> {
                       elevation: 0,
                     ),
                     onPressed: () {
+                      dev.log('Tapped Let\'s Compute', name: 'NpsView.Tap');
                       controller.calculateValue();
                     },
                     child: Text(
@@ -374,8 +441,8 @@ class _NpsViewState extends State<NpsView> {
                       elevation: 0,
                     ),
                     onPressed: () {
+                      dev.log('Tapped Reset', name: 'NpsView.Tap');
                       controller.resetCalc();
-                      setState(() {});
                     },
                     child: Text(
                       '   Reset   ',
@@ -386,598 +453,22 @@ class _NpsViewState extends State<NpsView> {
                   ),
                 ],
               ),
-              // SizedBox(height: 20),
-              // Row(children: [
-              //   Expanded(
-              //     child: Container(
-              //       padding: EdgeInsets.symmetric(vertical: 5),
-              //       decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(6)),
-              //       child: TextField(
-              //         controller: controller.textEditingControllerOd,
-              //         // focusNode: controller.focusNodeOd,
-              //         keyboardType: TextInputType.number,
-              //         style: TextStyle(
-              //           color: Colors.black,
-              //           fontWeight: FontWeight.w500,
-              //         ),
-              //         decoration: InputDecoration(
-              //           contentPadding: EdgeInsets.symmetric(horizontal: 10),
-              //           labelText: 'OD (inch)',
-              //           border: InputBorder.none,
-              //           enabledBorder: InputBorder.none,
-              //           floatingLabelStyle: TextStyle(
-              //             color: Colors.grey.shade700,
-              //             fontWeight: FontWeight.w600,
-              //             fontSize: 20,
-              //           ),
-              //         ),
-              //         onChanged: (value) {
-              //           controller.getRates(r: value);
-              //         },
-              //       ),
-              //     ),
-              //   ),
-              //   SizedBox(width: 20),
-              //   Expanded(
-              //     child: GestureDetector(
-              //       onTap: () {},
-              //       child: Container(
-              //         padding: EdgeInsets.symmetric(vertical: 5),
-              //         decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(6)),
-              //         child: controller.loadingCurrency.value
-              //             ? Padding(
-              //                 padding: const EdgeInsets.all(5),
-              //                 child: Center(child: CircularProgressIndicator()),
-              //               )
-              //             : TextField(
-              //                 controller: controller.textEditingControllerThk,
-              //                 // focusNode: controller.focusNodeOd,
-              //                 // readOnly: true,
-              //                 // showCursor: false,
-              //                 enabled: false,
-              //                 keyboardType: TextInputType.number,
-              //                 style: TextStyle(
-              //                   color: Colors.black,
-              //                   fontWeight: FontWeight.w500,
-              //                 ),
-              //                 decoration: InputDecoration(
-              //                   contentPadding: EdgeInsets.symmetric(horizontal: 10),
-              //                   labelText: 'THK (inch)',
-              //                   border: InputBorder.none,
-              //                   enabledBorder: InputBorder.none,
-              //                   labelStyle: TextStyle(
-              //                     color: Colors.grey.shade600,
-              //                     fontWeight: FontWeight.w500,
-              //                     fontSize: 16,
-              //                   ),
-              //                   floatingLabelStyle: TextStyle(
-              //                     color: Colors.grey.shade700,
-              //                     fontWeight: FontWeight.w600,
-              //                     fontSize: 20,
-              //                   ),
-              //                 ),
-              //                 // onChanged: (value) {
-              //                 //   _getRates(exgRate: value);
-              //                 // },
-              //               ),
-              //       ),
-              //     ),
-              //   )
-              // ]),
-              // SizedBox(height: 20),
-              // Row(children: [
-              //   Expanded(
-              //     child: Container(
-              //       padding: EdgeInsets.symmetric(vertical: 5),
-              //       decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(6)),
-              //       child: TextField(
-              //         // controller: controller.textEditingControllerOdMm,
-              //         // focusNode: controller.focusNodeOd,
-              //         keyboardType: TextInputType.number,
-              //         style: TextStyle(
-              //           color: Colors.black,
-              //           fontWeight: FontWeight.w500,
-              //         ),
-              //         decoration: InputDecoration(
-              //           contentPadding: EdgeInsets.symmetric(horizontal: 10),
-              //           labelText: 'OD (mm)',
-              //           border: InputBorder.none,
-              //           enabledBorder: InputBorder.none,
-              //           floatingLabelStyle: TextStyle(
-              //             color: Colors.grey.shade700,
-              //             fontWeight: FontWeight.w600,
-              //             fontSize: 20,
-              //           ),
-              //         ),
-              //         onChanged: (value) {
-              //           controller.getRates(r: value);
-              //         },
-              //       ),
-              //     ),
-              //   ),
-              //   SizedBox(width: 20),
-              //   Expanded(
-              //     child: GestureDetector(
-              //       onTap: () {},
-              //       child: Container(
-              //         padding: EdgeInsets.symmetric(vertical: 5),
-              //         decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(6)),
-              //         child: controller.loadingCurrency.value
-              //             ? Padding(
-              //                 padding: const EdgeInsets.all(5),
-              //                 child: Center(child: CircularProgressIndicator()),
-              //               )
-              //             : TextField(
-              //                 controller: controller.textEditingControllerThkMm,
-              //                 // focusNode: controller.focusNodeOd,
-              //                 // readOnly: true,
-              //                 // showCursor: false,
-              //                 enabled: false,
-              //                 keyboardType: TextInputType.number,
-              //                 style: TextStyle(
-              //                   color: Colors.black,
-              //                   fontWeight: FontWeight.w500,
-              //                 ),
-              //                 decoration: InputDecoration(
-              //                   contentPadding: EdgeInsets.symmetric(horizontal: 10),
-              //                   labelText: 'THK (mm)',
-              //                   border: InputBorder.none,
-              //                   enabledBorder: InputBorder.none,
-              //                   labelStyle: TextStyle(
-              //                     color: Colors.grey.shade600,
-              //                     fontWeight: FontWeight.w500,
-              //                     fontSize: 16,
-              //                   ),
-              //                   floatingLabelStyle: TextStyle(
-              //                     color: Colors.grey.shade700,
-              //                     fontWeight: FontWeight.w600,
-              //                     fontSize: 20,
-              //                   ),
-              //                 ),
-              //                 // onChanged: (value) {
-              //                 //   _getRates(exgRate: value);
-              //                 // },
-              //               ),
-              //       ),
-              //     ),
-              //   )
-              // ]),
-              SizedBox(height: 20),
-              Container(
-                clipBehavior: Clip.antiAlias,
-                decoration: BoxDecoration(borderRadius: BorderRadius.circular(6)),
-                child: Table(
-                  border: TableBorder(
-                    horizontalInside: BorderSide(width: 1, color: Colors.grey.shade300),
-                    verticalInside: BorderSide(width: 1, color: Colors.grey.shade300),
-                  ),
-                  children: [
-                    TableRow(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                      ),
-                      children: [
-                        TableCell(
-                          child: Container(
-                              color: AppColor.primaryBlueColor,
-                              height: 40,
-                              child: Center(
-                                  child:
-                                      Text('Od(Inch)', maxLines: 1, style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 16)))),
-                        ),
-                        TableCell(
-                          child: Container(
-                              color: AppColor.primaryBlueColor,
-                              height: 40,
-                              child: Center(
-                                  child:
-                                      Text('Od(mm)', maxLines: 1, style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 16)))),
-                        ),
-                        TableCell(
-                          child: Container(
-                              color: AppColor.primaryBlueColor,
-                              height: 40,
-                              child: Center(
-                                  child:
-                                      Text('Thk(Inch)', maxLines: 1, style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 16)))),
-                        ),
-                        TableCell(
-                          child: Container(
-                              color: AppColor.primaryBlueColor,
-                              height: 40,
-                              child: Center(
-                                  child: Text('Thk(mm)',
-                                      maxLines: 1, style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 16)))),
-                        ),
-                      ],
-                    ),
-                    TableRow(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                        ),
-                        children: [
-                          TableCell(
-                            child: SizedBox(
-                                height: 40,
-                                child: Center(
-                                    child: Text(controller.odInch.value.isNotEmpty? controller.odInch.toString():'--',
-                                        maxLines: 1, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16)))),
-                          ),
-                          TableCell(
-                            child: SizedBox(
-                                height: 40,
-                                child: Center(
-                                    child: Text(controller.odMm.value.isNotEmpty? controller.odMm.toString():'--',
-                                        maxLines: 1, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16)))),
-                          ),
-                          TableCell(
-                            child: SizedBox(
-                                height: 40,
-                                child: Center(
-                                    child: Text(controller.thkInch.value.isNotEmpty? controller.thkInch.toString():'--',
-                                        maxLines: 1, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16)))),
-                          ),
-                          TableCell(
-                            child: SizedBox(
-                                height: 40,
-                                child: Center(
-                                    child: Text(controller.thkMm.value.isNotEmpty? controller.thkMm.toString():'--',
-                                        maxLines: 1, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16)))),
-                          ),
-                        ]),
-                    TableRow(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                      ),
-                      children: [
-                        TableCell(
-                          child: Container(
-                              color: AppColor.primaryBlueColor,
-                              height: 40,
-                              child: Center(
-                                  child:
-                                  Text('kg/m', maxLines: 1, style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 16)))),
-                        ),
-                        TableCell(
-                          child: Container(
-                              color: AppColor.primaryBlueColor,
-                              height: 40,
-                              child: Center(
-                                  child:
-                                  Text('kg/ft', maxLines: 1, style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 16)))),
-                        ),
-                        TableCell(
-                          child: Container(
-                              color: AppColor.primaryBlueColor,
-                              height: 40,
-                              child: Center(
-                                  child:
-                                  Text('lbs/m', maxLines: 1, style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 16)))),
-                        ),
-                        TableCell(
-                          child: Container(
-                              color: AppColor.primaryBlueColor,
-                              height: 40,
-                              child: Center(
-                                  child: Text('lbs/feet',
-                                      maxLines: 1, style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 16)))),
-                        ),
-                      ],
-                    ),
-                    TableRow(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                        ),
-                        children: [
-                          TableCell(
-                            child: SizedBox(
-                                height: 40,
-                                child: Center(
-                                    child: Text(controller.kgM.value.isNotEmpty? controller.kgM.value:'--',
-                                        maxLines: 1, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16)))),
-                          ),
-                          TableCell(
-                            child: SizedBox(
-                                height: 40,
-                                child: Center(
-                                    child: Text(controller.kgFt.value.isNotEmpty? controller.kgFt.value:'--',
-                                        maxLines: 1, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16)))),
-                          ),
-                          TableCell(
-                            child: SizedBox(
-                                height: 40,
-                                child: Center(
-                                    child: Text(controller.lbsM.value.isNotEmpty? controller.lbsM.value:'--',
-                                        maxLines: 1, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16)))),
-                          ),
-                          TableCell(
-                            child: SizedBox(
-                                height: 40,
-                                child: Center(
-                                    child: Text(controller.lbsFt.value.isNotEmpty? controller.lbsFt.value:'--',
-                                        maxLines: 1, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16)))),
-                          ),
-                        ]),
-                  ],
-                ),
-              ),
               SizedBox(height: 20),
 
-              Row(children: [
-                Expanded(
-                  child: Container(
-                    padding: EdgeInsets.symmetric(vertical: 5),
-                    decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(6)),
-                    child: TextField(
-                      controller: controller.textEditingControllerRate,
-                      // focusNode: controller.focusNodeOd,
-                      keyboardType: TextInputType.number,
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontWeight: FontWeight.w500,
-                      ),
-                      decoration: InputDecoration(
-                        contentPadding: EdgeInsets.symmetric(horizontal: 10),
-                        labelText: 'Rate',
-                        hintText: '--',
-                        floatingLabelBehavior: FloatingLabelBehavior.always,
-                        border: InputBorder.none,
-                        enabledBorder: InputBorder.none,
-                        floatingLabelStyle: TextStyle(
-                          color: Colors.grey.shade700,
-                          fontWeight: FontWeight.w600,
-                          fontSize: 20,
-                        ),
-                      ),
-                      onChanged: (value) {
-                        controller.getRates(r: value);
-                      },
-                    ),
-                  ),
-                ),
-                SizedBox(width: 20),
-                Expanded(
-                  child: GestureDetector(
-                    onTap: () {
-                      showDialog(
-                        context: context,
-                        builder: (context) {
-                          return MediaQuery.removeViewInsets(
-                            context: context,
-                            removeBottom: true,
-                            child: Dialog(
-                              backgroundColor: Colors.white,
-                              clipBehavior: Clip.antiAlias,
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                              child: SizedBox(
-                                // padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-                                height: MediaQuery.of(context).size.height * 0.6,
-                                child: Obx(() {
-                                  return Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Container(
-                                        decoration: BoxDecoration(
-                                          // borderRadius: BorderRadius.(8),
-                                          color: AppColor.primaryBlueColor,
-                                        ),
-                                        padding: EdgeInsets.symmetric(vertical: 15),
-                                        child: Column(children: [
-                                          Text(
-                                            'Exchange Currency',
-                                            style: TextStyle(
-                                              fontSize: 20,
-                                              fontWeight: FontWeight.w600,
-                                              color: AppColor.whiteColor,
-                                            ),
-                                          ),
-                                          SizedBox(height: 10),
-                                          Padding(
-                                            padding: const EdgeInsets.symmetric(horizontal: 12),
-                                            child: SizedBox(
-                                              height: 40,
-                                              child: TextField(
-                                                onChanged: (value) {
-                                                  controller.filterCurrencyList(value);
-                                                },
-                                                decoration: InputDecoration(
-                                                  contentPadding: EdgeInsets.symmetric(horizontal: 10),
-                                                  hintText: 'Search Currency',
-                                                  hintStyle: TextStyle(color: Colors.grey),
-                                                  filled: true,
-                                                  fillColor: Colors.white,
-                                                  enabledBorder: OutlineInputBorder(
-                                                      borderRadius: BorderRadius.circular(8),
-                                                      borderSide: BorderSide(color: Colors.white)),
-                                                  focusedBorder: OutlineInputBorder(
-                                                      borderRadius: BorderRadius.circular(8),
-                                                      borderSide: BorderSide(color: Colors.white)),
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ]),
-                                      ),
-                                      Expanded(
-                                        child: SingleChildScrollView(
-                                          padding: EdgeInsets.symmetric(vertical: 10),
-                                          child: Column(
-                                            children: [
-                                              if (!controller.isFiltered.value) ...[
-                                                Row(
-                                                  children: [
-                                                    Expanded(
-                                                      child: Padding(
-                                                        padding: const EdgeInsets.symmetric(horizontal: 10),
-                                                        child: Divider(
-                                                          color: Colors.grey.shade400,
-                                                          thickness: 1,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    Text(
-                                                      'Popular Currencies',
-                                                      style: TextStyle(
-                                                        fontSize: 18,
-                                                        fontWeight: FontWeight.w500,
-                                                      ),
-                                                    ),
-                                                    Expanded(
-                                                      child: Padding(
-                                                        padding: const EdgeInsets.symmetric(horizontal: 10),
-                                                        child: Divider(
-                                                          color: Colors.grey.shade400,
-                                                          thickness: 1,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                                Column(
-                                                  children: List.generate(
-                                                    controller.suggestedList.length,
-                                                        (index) {
-                                                      var country = controller.suggestedList[index];
-                                                      if (country.isNotEmpty) {
-                                                        if (controller.selectedCurrency.isNotEmpty) {
-                                                          if (controller.selectedCurrency[0] == country[0]) {
-                                                            return ListTile(
-                                                              minTileHeight: 40,
-                                                              onTap: () {
-
-                                                                controller.selectedCurrency.value = controller.suggestedList[index];
-                                                                controller.fetchCurrencyDetails(controller.selectedCurrency[0].toString());
-                                                                Get.back();
-                                                              },
-                                                              // onTap: () {
-                                                              //   controller.selectedCurrency.value = controller.suggestedList[index];
-                                                              //   print('object ${controller.selectedCurrency}');
-                                                              //
-                                                              //   Get.back();
-                                                              // },
-                                                              title: Text(country[0] + ' - ' + country[1]),
-                                                              trailing:
-                                                              Icon(Icons.check_circle, color: AppColor.primaryBlueColor, size: 25),
-                                                            );
-                                                          }
-                                                        }
-
-                                                        return ListTile(
-
-                                                          minTileHeight: 40,
-                                                          onTap: () {
-
-                                                            controller.selectedCurrency.value = controller.suggestedList[index];
-                                                            controller.fetchCurrencyDetails(controller.selectedCurrency[0].toString());
-                                                            Get.back();
-                                                          },
-                                                          title: Text(country[0] + ' - ' + country[1]),
-                                                        );
-                                                      } else {
-                                                        return SizedBox();
-                                                      }
-                                                    },
-                                                  ),
-                                                ),
-                                                Row(
-                                                  children: [
-                                                    Expanded(
-                                                      child: Padding(
-                                                        padding: const EdgeInsets.symmetric(horizontal: 10),
-                                                        child: Divider(
-                                                          color: Colors.grey.shade300,
-                                                          thickness: 1,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    Text(
-                                                      'All',
-                                                      style: TextStyle(
-                                                        fontSize: 18,
-                                                        fontWeight: FontWeight.w500,
-                                                      ),
-                                                    ),
-                                                    Expanded(
-                                                      child: Padding(
-                                                        padding: const EdgeInsets.symmetric(horizontal: 10),
-                                                        child: Divider(
-                                                          color: Colors.grey.shade300,
-                                                          thickness: 1,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ],
-                                              Column(
-                                                children: List.generate(
-                                                  controller.filteredCountryList.length,
-                                                      (index) {
-                                                    var country = controller.filteredCountryList[index];
-                                                    if (country.isNotEmpty) {
-                                                      if (controller.selectedCurrency.isNotEmpty) {
-                                                        if (controller.selectedCurrency[0] == country[0]) {
-                                                          return ListTile(
-                                                            minTileHeight: 40,
-                                                            onTap: () {
-
-                                                              controller.selectedCurrency.value = controller.filteredCountryList[index];
-                                                              controller.fetchCurrencyDetails(controller.selectedCurrency[0].toString());
-                                                              Get.back();
-                                                            },
-                                                            title: Text(country[0] + ' - ' + country[1]),
-                                                            trailing:
-                                                            Icon(Icons.check_circle, color: AppColor.primaryBlueColor, size: 25),
-                                                          );
-                                                        }
-                                                      }
-
-                                                      return ListTile(
-                                                        minTileHeight: 40,
-                                                        onTap: () {
-
-                                                          controller.selectedCurrency.value = controller.filteredCountryList[index];
-                                                          controller.fetchCurrencyDetails(controller.selectedCurrency[0].toString());
-                                                          Get.back();
-                                                        },
-                                                        title: Text(country[0] + ' - ' + country[1]),
-                                                      );
-                                                    } else {
-                                                      return SizedBox();
-                                                    }
-                                                  },
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  );
-                                }),
-                              ),
-                            ),
-                          );
-                        },
-                      ).then((value) {
-                        controller.isFiltered(false);
-                        controller.resetList();
-                      });
-                    },
+              // --- MODIFIED: Show tables only after compute ---
+              if (controller.isComputed.value) ...[
+                // This is the Row with OD/THK text fields
+                Row(children: [
+                  Expanded(
                     child: Container(
                       padding: EdgeInsets.symmetric(vertical: 5),
-                      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(6)),
-                      child: controller.loadingCurrency.value?
-                      Padding(
-                        padding: const EdgeInsets.all(5),
-                        child: Center(child: CircularProgressIndicator()),
-                      ):
-                      TextField(
-                        controller: controller.textEditingControllerExgRate,
-                        // focusNode: controller.focusNodeOd,
-                        // readOnly: true,
-                        // showCursor: false,
+                      decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(6)),
+                      child: TextField(
                         enabled: false,
+                        // USE NPS CONTROLLER'S VARIABLE
+                        controller: controller.textEditingControllerOdMm,
                         keyboardType: TextInputType.number,
                         style: TextStyle(
                           color: Colors.black,
@@ -985,134 +476,860 @@ class _NpsViewState extends State<NpsView> {
                         ),
                         decoration: InputDecoration(
                           contentPadding: EdgeInsets.symmetric(horizontal: 10),
-                          labelText: 'Exchange Rate',
+                          labelText: 'OD (mm)',
                           border: InputBorder.none,
+                          enabledBorder: InputBorder.none,
                           hintText: '--',
                           floatingLabelBehavior: FloatingLabelBehavior.always,
-                          enabledBorder: InputBorder.none,
-                          labelStyle: TextStyle(
-                            color: Colors.grey.shade600,
-                            fontWeight: FontWeight.w500,
-                            fontSize: 16,
-                          ),
                           floatingLabelStyle: TextStyle(
                             color: Colors.grey.shade700,
                             fontWeight: FontWeight.w600,
                             fontSize: 20,
                           ),
                         ),
-                        // onChanged: (value) {
-                        //   _getRates(exgRate: value);
-                        // },
                       ),
                     ),
                   ),
-                )
-              ]),
-              SizedBox(height: 20),
-              Row(children: [
-                // Expanded(
-                //   child: Container(
-                //     padding: EdgeInsets.symmetric(vertical: 15,horizontal: 10),
-                //     decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(6)),
-                //     child: Text(
-                //       controller.rateKg.value==0.0? 'Rate (KG)':controller.rateKg.value.toString(),
-                //       style: TextStyle(
-                //         color: Colors.grey.shade700,
-                //         fontWeight: FontWeight.w400,
-                //         fontSize: 16,
-                //       ),
-                //     ),
-                //   ),
-                // ),
-                Expanded(
-                  child: Container(
-                    padding: EdgeInsets.symmetric(vertical: 5),
-                    decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(6)),
-                    child: TextField(
-                      enabled: false,
-                      controller: controller.textEditingControllerRateKg,
-                      // focusNode: controller.focusNodeOd,
-                      // readOnly: true,
-                      // showCursor: true,
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontWeight: FontWeight.w500,
-                      ),
-                      keyboardType: TextInputType.number,
-                      decoration: InputDecoration(
-                        contentPadding: EdgeInsets.symmetric(horizontal: 10),
-                        labelText: 'Rate (KG)',
-                        hintText: '--',
-                        floatingLabelBehavior: FloatingLabelBehavior.always,
-                        labelStyle: TextStyle(
-                          color: Colors.grey.shade600,
-                          fontWeight: FontWeight.w500,
-                          fontSize: 16,
-                        ),
-                        border: InputBorder.none,
-                        enabledBorder: InputBorder.none,
-                        floatingLabelStyle: TextStyle(
-                          color: Colors.grey.shade600,
-                          fontWeight: FontWeight.w600,
-                          fontSize: 20,
+                  SizedBox(width: 20),
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () {},
+                      child: Container(
+                        padding: EdgeInsets.symmetric(vertical: 5),
+                        decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(6)),
+                        child: TextField(
+                          // USE NPS CONTROLLER'S VARIABLE
+                          controller: controller.textEditingControllerThkMm,
+                          enabled: false,
+                          keyboardType: TextInputType.number,
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontWeight: FontWeight.w500,
+                          ),
+                          decoration: InputDecoration(
+                            contentPadding:
+                                EdgeInsets.symmetric(horizontal: 10),
+                            labelText: 'THK (mm)',
+                            border: InputBorder.none,
+                            hintText: '--',
+                            floatingLabelBehavior: FloatingLabelBehavior.always,
+                            enabledBorder: InputBorder.none,
+                            labelStyle: TextStyle(
+                              color: Colors.grey.shade600,
+                              fontWeight: FontWeight.w500,
+                              fontSize: 16,
+                            ),
+                            floatingLabelStyle: TextStyle(
+                              color: Colors.grey.shade700,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 20,
+                            ),
+                          ),
                         ),
                       ),
-                      onSubmitted: (value) {
-                        controller.getRates(ex: value);
-                      },
                     ),
-                  ),
-                ),
-                SizedBox(width: 20),
-                Expanded(
-                  child: Container(
-                    padding: EdgeInsets.symmetric(vertical: 5),
-                    decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(6)),
-                    child: TextField(
-                      enabled: false,
-                      controller: controller.textEditingControllerRateLbs,
-                      // focusNode: controller.focusNodeOd,
-                      // readOnly: true,
-                      // showCursor: true,
-                      keyboardType: TextInputType.number,
-                      style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500),
-                      decoration: InputDecoration(
-                        contentPadding: EdgeInsets.symmetric(horizontal: 10),
-                        labelText: 'Rate (LBS)',
-                        hintText: '--',
-                        floatingLabelBehavior: FloatingLabelBehavior.always,
-                        labelStyle: TextStyle(
-                          color: Colors.grey.shade600,
-                          fontWeight: FontWeight.w500,
-                          fontSize: 16,
-                        ),
-                        border: InputBorder.none,
-                        enabledBorder: InputBorder.none,
-                        floatingLabelStyle: TextStyle(
-                          color: Colors.grey.shade600,
-                          fontWeight: FontWeight.w600,
-                          fontSize: 20,
-                        ),
-                      ),
-                      onSubmitted: (value) {
-                        controller.getRates(ex: value);
-                      },
-                    ),
-                  ),
-                ),
-              ]),
-              if(controller.isComputed.value)...[
+                  )
+                ]),
                 SizedBox(height: 20),
+                // This is the CS/SS Table
+                Container(
+                  clipBehavior: Clip.antiAlias,
+                  decoration:
+                      BoxDecoration(borderRadius: BorderRadius.circular(6)),
+                  child: Table(
+                    border: TableBorder(
+                      horizontalInside:
+                          BorderSide(width: 1, color: Colors.grey.shade300),
+                      verticalInside:
+                          BorderSide(width: 1, color: Colors.grey.shade300),
+                    ),
+                    children: [
+                      TableRow(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                        ),
+                        children: [
+                          TableCell(
+                            child: SizedBox(
+                                height: 40,
+                                child: Center(
+                                    child: Text(' ',
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 16)))),
+                          ),
+                          TableCell(
+                            child: Container(
+                                color: AppColor.primaryBlueColor,
+                                height: 40,
+                                child: Center(
+                                    child: Text('kg/m',
+                                        maxLines: 1,
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 16)))),
+                          ),
+                          TableCell(
+                            child: Container(
+                                color: AppColor.primaryBlueColor,
+                                height: 40,
+                                child: Center(
+                                    child: Text('kg/ft',
+                                        maxLines: 1,
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 16)))),
+                          ),
+                          TableCell(
+                            child: Container(
+                                color: AppColor.primaryBlueColor,
+                                height: 40,
+                                child: Center(
+                                    child: Text('lbs/m',
+                                        maxLines: 1,
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 16)))),
+                          ),
+                          TableCell(
+                            child: Container(
+                                color: AppColor.primaryBlueColor,
+                                height: 40,
+                                child: Center(
+                                    child: Text('lbs/feet',
+                                        maxLines: 1,
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 16)))),
+                          ),
+                        ],
+                      ),
+                      TableRow(
+                          // CS Row
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                          ),
+                          children: [
+                            TableCell(
+                              child: Container(
+                                  color: Colors.red,
+                                  height: 40,
+                                  child: Center(
+                                      child: Text('CS',
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.w600,
+                                              fontSize: 16)))),
+                            ),
+                            TableCell(
+                              // CS kg/m
+                              child: SizedBox(
+                                  height: 40,
+                                  child: Center(
+                                      child: Text(
+                                          // Parse the RxString value from NpsController
+                                          Utils.parseToDouble(
+                                                  controller.kgM.value)
+                                              .toStringAsFixed(2),
+                                          maxLines: 1,
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.w600,
+                                              fontSize: 16)))),
+                            ),
+                            TableCell(
+                              // CS kg/ft
+                              child: SizedBox(
+                                  height: 40,
+                                  child: Center(
+                                      child: Text(
+                                          (Utils.parseToDouble(
+                                                      controller.kgM.value) /
+                                                  3.2808) // Calculate
+                                              .toStringAsFixed(2),
+                                          maxLines: 1,
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.w600,
+                                              fontSize: 16)))),
+                            ),
+                            TableCell(
+                              // CS lbs/m
+                              child: SizedBox(
+                                  height: 40,
+                                  child: Center(
+                                      child: Text(
+                                          (Utils.parseToDouble(
+                                                      controller.kgM.value) *
+                                                  2.2046226) // Calculate
+                                              .toStringAsFixed(2),
+                                          maxLines: 1,
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.w600,
+                                              fontSize: 16)))),
+                            ),
+                            TableCell(
+                              // CS lbs/feet
+                              child: SizedBox(
+                                  height: 40,
+                                  child: Center(
+                                      child: Text(
+                                          ((Utils.parseToDouble(controller
+                                                          .kgM.value) *
+                                                      2.2046226) / // Calculate
+                                                  3.2808)
+                                              .toStringAsFixed(2),
+                                          maxLines: 1,
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.w600,
+                                              fontSize: 16)))),
+                            ),
+                          ]),
+                      TableRow(
+                          // SS Row
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                          ),
+                          children: [
+                            TableCell(
+                              child: Container(
+                                  color: Colors.red,
+                                  height: 40,
+                                  child: Center(
+                                      child: Text('SS',
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.w600,
+                                              fontSize: 16)))),
+                            ),
+                            TableCell(
+                              // SS kg/m
+                              child: SizedBox(
+                                  height: 40,
+                                  child: Center(
+                                      child: Text(
+                                          // Parse the RxString value from NpsController
+                                          Utils.parseToDouble(
+                                                  controller.ssKgM.value)
+                                              .toStringAsFixed(2),
+                                          maxLines: 1,
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.w600,
+                                              fontSize: 16)))),
+                            ),
+                            TableCell(
+                              // SS kg/ft
+                              child: SizedBox(
+                                  height: 40,
+                                  child: Center(
+                                      child: Text(
+                                          (Utils.parseToDouble(
+                                                      controller.ssKgM.value) /
+                                                  3.2808) // Calculate
+                                              .toStringAsFixed(2),
+                                          maxLines: 1,
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.w600,
+                                              fontSize: 16)))),
+                            ),
+                            TableCell(
+                              // SS lbs/m
+                              child: SizedBox(
+                                  height: 40,
+                                  child: Center(
+                                      child: Text(
+                                          (Utils.parseToDouble(
+                                                      controller.ssKgM.value) *
+                                                  2.2046226) // Calculate
+                                              .toStringAsFixed(2),
+                                          maxLines: 1,
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.w600,
+                                              fontSize: 16)))),
+                            ),
+                            TableCell(
+                              // SS lbs/feet
+                              child: SizedBox(
+                                  height: 40,
+                                  child: Center(
+                                      child: Text(
+                                          ((Utils.parseToDouble(controller
+                                                          .ssKgM.value) *
+                                                      2.2046226) / // Calculate
+                                                  3.2808)
+                                              .toStringAsFixed(2),
+                                          maxLines: 1,
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.w600,
+                                              fontSize: 16)))),
+                            ),
+                          ]),
+                    ],
+                  ),
+                ),
+                // ---------------- END OF REPLACED BLOCK -----------------
+                SizedBox(height: 20),
+
+                // --- ADDED: Rate Fields (from ManualView) ---
+                Row(children: [
+                  Expanded(
+                    child: Container(
+                      padding: EdgeInsets.symmetric(vertical: 5),
+                      decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(6)),
+                      child: TextField(
+                        controller: controller.textEditingControllerRate,
+                        keyboardType: TextInputType.number,
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        decoration: InputDecoration(
+                          contentPadding: EdgeInsets.symmetric(horizontal: 10),
+                          labelText: 'Rate',
+                          border: InputBorder.none,
+                          enabledBorder: InputBorder.none,
+                          floatingLabelStyle: TextStyle(
+                            color: Colors.grey.shade700,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 20,
+                          ),
+                        ),
+                        onChanged: (value) {
+                          dev.log('Rate TextField onChanged: $value',
+                              name: 'Input.Rate');
+                          controller.getRates(r: value);
+                        },
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: 20),
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () {
+                        dev.log('Tapped to open Exchange Currency dialog',
+                            name: 'UI.Tap');
+                        showDialog(
+                          context: context,
+                          builder: (context) {
+                            return MediaQuery.removeViewInsets(
+                              context: context,
+                              removeBottom: true,
+                              child: Dialog(
+                                backgroundColor: Colors.white,
+                                clipBehavior: Clip.antiAlias,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16)),
+                                child: SizedBox(
+                                  height:
+                                      MediaQuery.of(context).size.height * 0.6,
+                                  child: Obx(() {
+                                    dev.log(
+                                        'Currency Dialog Obx rebuilding. isFiltered: ${controller.isFiltered.value}',
+                                        name: 'UI.Dialog');
+                                    return Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Container(
+                                          decoration: BoxDecoration(
+                                            color: AppColor.primaryBlueColor,
+                                          ),
+                                          padding: EdgeInsets.symmetric(
+                                              vertical: 15),
+                                          child: Column(children: [
+                                            Text(
+                                              'Exchange Currency',
+                                              style: TextStyle(
+                                                fontSize: 20,
+                                                fontWeight: FontWeight.w600,
+                                                color: AppColor.whiteColor,
+                                              ),
+                                            ),
+                                            SizedBox(height: 10),
+                                            Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 12),
+                                              child: SizedBox(
+                                                height: 40,
+                                                child: TextField(
+                                                  onChanged: (value) {
+                                                    dev.log(
+                                                        'Currency Search onChanged: $value',
+                                                        name:
+                                                            'Input.DialogSearch');
+                                                    controller
+                                                        .filterCurrencyList(
+                                                            value);
+                                                  },
+                                                  decoration: InputDecoration(
+                                                    contentPadding:
+                                                        EdgeInsets.symmetric(
+                                                            horizontal: 10),
+                                                    hintText: 'Search Currency',
+                                                    hintStyle: TextStyle(
+                                                        color: Colors.grey),
+                                                    filled: true,
+                                                    fillColor: Colors.white,
+                                                    enabledBorder:
+                                                        OutlineInputBorder(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        8),
+                                                            borderSide:
+                                                                BorderSide(
+                                                                    color: Colors
+                                                                        .white)),
+                                                    focusedBorder:
+                                                        OutlineInputBorder(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        8),
+                                                            borderSide:
+                                                                BorderSide(
+                                                                    color: Colors
+                                                                        .white)),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ]),
+                                        ),
+                                        Expanded(
+                                          child: SingleChildScrollView(
+                                            padding: EdgeInsets.symmetric(
+                                                vertical: 10),
+                                            child: Column(
+                                              children: [
+                                                if (!controller
+                                                    .isFiltered.value) ...[
+                                                  Row(
+                                                    children: [
+                                                      Expanded(
+                                                        child: Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .symmetric(
+                                                                  horizontal:
+                                                                      10),
+                                                          child: Divider(
+                                                            color: Colors
+                                                                .grey.shade400,
+                                                            thickness: 1,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                      Text(
+                                                        'Popular Currencies',
+                                                        style: TextStyle(
+                                                          fontSize: 18,
+                                                          fontWeight:
+                                                              FontWeight.w500,
+                                                        ),
+                                                      ),
+                                                      Expanded(
+                                                        child: Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .symmetric(
+                                                                  horizontal:
+                                                                      10),
+                                                          child: Divider(
+                                                            color: Colors
+                                                                .grey.shade400,
+                                                            thickness: 1,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  Column(
+                                                    children: List.generate(
+                                                      controller
+                                                          .suggestedList.length,
+                                                      (index) {
+                                                        var country = controller
+                                                                .suggestedList[
+                                                            index];
+                                                        if (country
+                                                            .isNotEmpty) {
+                                                          if (controller
+                                                              .selectedCurrency
+                                                              .isNotEmpty) {
+                                                            if (controller
+                                                                        .selectedCurrency[
+                                                                    0] ==
+                                                                country[0]) {
+                                                              return ListTile(
+                                                                minTileHeight:
+                                                                    40,
+                                                                onTap: () {
+                                                                  dev.log(
+                                                                      'Tapped Popular (Selected): ${country[0]}',
+                                                                      name:
+                                                                          'UI.DialogTap');
+                                                                  controller
+                                                                      .selectedCurrency
+                                                                      .value = controller
+                                                                          .suggestedList[
+                                                                      index];
+                                                                  controller.fetchCurrencyDetails(
+                                                                      controller
+                                                                          .selectedCurrency[
+                                                                              0]
+                                                                          .toString());
+                                                                  Get.back();
+                                                                },
+                                                                title: Text(
+                                                                    country[0] +
+                                                                        ' - ' +
+                                                                        country[
+                                                                            1]),
+                                                                trailing: Icon(
+                                                                    Icons
+                                                                        .check_circle,
+                                                                    color: AppColor
+                                                                        .primaryBlueColor,
+                                                                    size: 25),
+                                                              );
+                                                            }
+                                                          }
+
+                                                          return ListTile(
+                                                            minTileHeight: 40,
+                                                            onTap: () {
+                                                              dev.log(
+                                                                  'Tapped Popular (New): ${country[0]}',
+                                                                  name:
+                                                                      'UI.DialogTap');
+                                                              controller
+                                                                  .selectedCurrency
+                                                                  .value = controller
+                                                                      .suggestedList[
+                                                                  index];
+                                                              controller.fetchCurrencyDetails(
+                                                                  controller
+                                                                      .selectedCurrency[
+                                                                          0]
+                                                                      .toString());
+                                                              Get.back();
+                                                            },
+                                                            title: Text(
+                                                                country[0] +
+                                                                    ' - ' +
+                                                                    country[1]),
+                                                          );
+                                                        } else {
+                                                          return SizedBox();
+                                                        }
+                                                      },
+                                                    ),
+                                                  ),
+                                                  Row(
+                                                    children: [
+                                                      Expanded(
+                                                        child: Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .symmetric(
+                                                                  horizontal:
+                                                                      10),
+                                                          child: Divider(
+                                                            color: Colors
+                                                                .grey.shade300,
+                                                            thickness: 1,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                      Text(
+                                                        'All',
+                                                        style: TextStyle(
+                                                          fontSize: 18,
+                                                          fontWeight:
+                                                              FontWeight.w500,
+                                                        ),
+                                                      ),
+                                                      Expanded(
+                                                        child: Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .symmetric(
+                                                                  horizontal:
+                                                                      10),
+                                                          child: Divider(
+                                                            color: Colors
+                                                                .grey.shade300,
+                                                            thickness: 1,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ],
+                                                Column(
+                                                  children: List.generate(
+                                                    controller
+                                                        .filteredCountryList
+                                                        .length,
+                                                    (index) {
+                                                      var country = controller
+                                                              .filteredCountryList[
+                                                          index];
+                                                      if (country.isNotEmpty) {
+                                                        if (controller
+                                                            .selectedCurrency
+                                                            .isNotEmpty) {
+                                                          if (controller
+                                                                      .selectedCurrency[
+                                                                  0] ==
+                                                              country[0]) {
+                                                            return ListTile(
+                                                              minTileHeight: 40,
+                                                              onTap: () {
+                                                                dev.log(
+                                                                    'Tapped Filtered (Selected): ${country[0]}',
+                                                                    name:
+                                                                        'UI.DialogTap');
+                                                                controller
+                                                                    .selectedCurrency
+                                                                    .value = controller
+                                                                        .filteredCountryList[
+                                                                    index];
+                                                                controller.fetchCurrencyDetails(
+                                                                    controller
+                                                                        .selectedCurrency[
+                                                                            0]
+                                                                        .toString());
+                                                                Get.back();
+                                                              },
+                                                              title: Text(
+                                                                  country[0] +
+                                                                      ' - ' +
+                                                                      country[
+                                                                          1]),
+                                                              trailing: Icon(
+                                                                  Icons
+                                                                      .check_circle,
+                                                                  color: AppColor
+                                                                      .primaryBlueColor,
+                                                                  size: 25),
+                                                            );
+                                                          }
+                                                        }
+
+                                                        return ListTile(
+                                                          minTileHeight: 40,
+                                                          onTap: () {
+                                                            dev.log(
+                                                                'Tapped Filtered (New): ${country[0]}',
+                                                                name:
+                                                                    'UI.DialogTap');
+                                                            controller
+                                                                .selectedCurrency
+                                                                .value = controller
+                                                                    .filteredCountryList[
+                                                                index];
+                                                            controller.fetchCurrencyDetails(
+                                                                controller
+                                                                    .selectedCurrency[
+                                                                        0]
+                                                                    .toString());
+                                                            Get.back();
+                                                          },
+                                                          title: Text(
+                                                              country[0] +
+                                                                  ' - ' +
+                                                                  country[1]),
+                                                        );
+                                                      } else {
+                                                        return SizedBox();
+                                                      }
+                                                    },
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    );
+                                  }),
+                                ),
+                              ),
+                            );
+                          },
+                        ).then((value) {
+                          dev.log('Currency Dialog closed. Resetting filter.',
+                              name: 'UI.Dialog');
+                          controller.isFiltered(false);
+                          controller.resetList();
+                        });
+                      },
+                      child: Container(
+                        padding: EdgeInsets.symmetric(vertical: 5),
+                        decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(6)),
+                        child: controller.loadingCurrency.value
+                            ? Padding(
+                                padding: const EdgeInsets.all(5),
+                                child:
+                                    Center(child: CircularProgressIndicator()),
+                              )
+                            : TextField(
+                                controller:
+                                    controller.textEditingControllerExgRate,
+                                enabled: false,
+                                keyboardType: TextInputType.number,
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                                decoration: InputDecoration(
+                                  contentPadding:
+                                      EdgeInsets.symmetric(horizontal: 10),
+                                  labelText: 'Exchange Rate',
+                                  border: InputBorder.none,
+                                  enabledBorder: InputBorder.none,
+                                  labelStyle: TextStyle(
+                                    color: Colors.grey.shade600,
+                                    fontWeight: FontWeight.w500,
+                                    fontSize: 16,
+                                  ),
+                                  floatingLabelStyle: TextStyle(
+                                    color: Colors.grey.shade700,
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 20,
+                                  ),
+                                ),
+                              ),
+                      ),
+                    ),
+                  )
+                ]),
+                SizedBox(height: 20),
+                Row(children: [
+                  Expanded(
+                    child: Container(
+                      padding: EdgeInsets.symmetric(vertical: 5),
+                      decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(6)),
+                      child: TextField(
+                        enabled: false,
+                        controller: controller.textEditingControllerRateKg,
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        keyboardType: TextInputType.number,
+                        decoration: InputDecoration(
+                          contentPadding: EdgeInsets.symmetric(horizontal: 10),
+                          labelText: 'Rate (KG)',
+                          labelStyle: TextStyle(
+                            color: Colors.grey.shade600,
+                            fontWeight: FontWeight.w500,
+                            fontSize: 16,
+                          ),
+                          border: InputBorder.none,
+                          enabledBorder: InputBorder.none,
+                          floatingLabelStyle: TextStyle(
+                            color: Colors.grey.shade600,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 20,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: 20),
+                  Expanded(
+                    child: Container(
+                      padding: EdgeInsets.symmetric(vertical: 5),
+                      decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(6)),
+                      child: TextField(
+                        enabled: false,
+                        controller: controller.textEditingControllerRateLbs,
+                        keyboardType: TextInputType.number,
+                        style: TextStyle(
+                            color: Colors.black, fontWeight: FontWeight.w500),
+                        decoration: InputDecoration(
+                          contentPadding: EdgeInsets.symmetric(horizontal: 10),
+                          labelText: 'Rate (LBS)',
+                          labelStyle: TextStyle(
+                            color: Colors.grey.shade600,
+                            fontWeight: FontWeight.w500,
+                            fontSize: 16,
+                          ),
+                          border: InputBorder.none,
+                          enabledBorder: InputBorder.none,
+                          floatingLabelStyle: TextStyle(
+                            color: Colors.grey.shade600,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 20,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ]),
+                SizedBox(height: 20),
+
+                // --- ADDED: Final Calculation Table (from ManualView) ---
                 Obx(() {
-                  controller.isChanging.value;
+                  // This Obx rebuilds when 'isChanging' toggles
+                  dev.log('--- Obx Table Rebuilding ---', name: 'Table.Calc');
+                  dev.log(
+                      'Trigger: controller.isChanging.value = ${controller.isChanging.value}',
+                      name: 'Table.Calc');
+
+                  // Parse values
+                  final double rateKg = Utils.parseToDouble(
+                      controller.textEditingControllerRateKg.text);
+                  final double rateLbs = Utils.parseToDouble(
+                      controller.textEditingControllerRateLbs.text);
+                  final double csKgm =
+                      Utils.parseToDouble(controller.kgM.value);
+                  final double ssKgm =
+                      Utils.parseToDouble(controller.ssKgM.value);
+
+                  dev.log('Parsed [rateKg]: $rateKg', name: 'Table.Calc');
+                  dev.log('Parsed [rateLbs]: $rateLbs', name: 'Table.Calc');
+                  dev.log('Parsed [csKgm]: $csKgm', name: 'Table.Calc');
+                  dev.log('Parsed [ssKgm]: $ssKgm', name: 'Table.Calc');
+
+                  // Calculate final values
+                  final double csRatePerMeter = csKgm * rateKg;
+                  final double csRatePerFeet = (csKgm / 3.2808) * rateKg;
+                  final double ssRatePerMeter = ssKgm * rateLbs * 2.2046226;
+                  final double ssRatePerFeet =
+                      (ssKgm / 3.2808) * rateLbs * 2.2046226;
+
+                  dev.log('CS Rate/Meter = $csKgm * $rateKg = $csRatePerMeter',
+                      name: 'Table.Calc');
+                  dev.log(
+                      'SS Rate/Meter = $ssKgm * $rateLbs * 2.20... = $ssRatePerMeter',
+                      name: 'Table.Calc');
+
                   return Container(
                     clipBehavior: Clip.antiAlias,
-                    decoration: BoxDecoration(borderRadius: BorderRadius.circular(6)),
+                    decoration:
+                        BoxDecoration(borderRadius: BorderRadius.circular(6)),
                     child: Table(
                       border: TableBorder(
-                        horizontalInside: BorderSide(width: 1, color: Colors.grey.shade300),
-                        verticalInside: BorderSide(width: 1, color: Colors.grey.shade300),
+                        horizontalInside:
+                            BorderSide(width: 1, color: Colors.grey.shade300),
+                        verticalInside:
+                            BorderSide(width: 1, color: Colors.grey.shade300),
                       ),
                       children: [
                         TableRow(
@@ -1121,7 +1338,16 @@ class _NpsViewState extends State<NpsView> {
                           ),
                           children: [
                             TableCell(
-                              child: SizedBox(height: 40, child: Center(child: Text(' ', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16)))),
+                              child: SizedBox(
+                                  height: 40,
+                                  child: Center(
+                                      child: Text(
+                                          controller.selectedCurrency.isNotEmpty
+                                              ? "In ${controller.selectedCurrency[0].toString()}"
+                                              : 'In INR',
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.w600,
+                                              fontSize: 16)))),
                             ),
                             TableCell(
                               child: Container(
@@ -1129,7 +1355,11 @@ class _NpsViewState extends State<NpsView> {
                                   height: 40,
                                   child: Center(
                                       child: Text('Rate/Meter',
-                                          maxLines: 1, style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 16)))),
+                                          maxLines: 1,
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.w600,
+                                              fontSize: 16)))),
                             ),
                             TableCell(
                               child: Container(
@@ -1137,7 +1367,11 @@ class _NpsViewState extends State<NpsView> {
                                   height: 40,
                                   child: Center(
                                       child: Text('Rate/feet',
-                                          maxLines: 1, style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 16)))),
+                                          maxLines: 1,
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.w600,
+                                              fontSize: 16)))),
                             ),
                           ],
                         ),
@@ -1150,30 +1384,34 @@ class _NpsViewState extends State<NpsView> {
                                 child: Container(
                                     color: Colors.red,
                                     height: 40,
-                                    child: Center(child: Text('CS', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 16)))),
+                                    child: Center(
+                                        child: Text('CS',
+                                            style: TextStyle(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.w600,
+                                                fontSize: 16)))),
                               ),
                               TableCell(
                                 child: SizedBox(
                                     height: 40,
                                     child: Center(
                                         child: Text(
-                                            controller.textEditingControllerRate.text.isEmpty?'--':
-                                            (Utils.parseToDouble(controller.kgM.value) * Utils.parseToDouble(controller.textEditingControllerRateKg.text)).toStringAsFixed(2),
-                                            // '2',
+                                            csRatePerMeter.toStringAsFixed(2),
                                             maxLines: 1,
-                                            style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16)))),
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.w600,
+                                                fontSize: 16)))),
                               ),
                               TableCell(
                                 child: SizedBox(
                                     height: 40,
                                     child: Center(
                                         child: Text(
-                                            controller.textEditingControllerRate.text.isEmpty?'--':
-                                            ((Utils.parseToDouble(controller.kgM.value) * Utils.parseToDouble(controller.textEditingControllerRateKg.text))/3.2808).toStringAsFixed(2),
-                                            // ((controller.kgm / 3.2808) * Utils.parseToDouble(controller.textEditingControllerRateKg.text)).toStringAsFixed(2),
-                                            // '20',
+                                            csRatePerFeet.toStringAsFixed(2),
                                             maxLines: 1,
-                                            style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16)))),
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.w600,
+                                                fontSize: 16)))),
                               ),
                             ]),
                         TableRow(
@@ -1185,31 +1423,34 @@ class _NpsViewState extends State<NpsView> {
                                 child: Container(
                                     color: Colors.red,
                                     height: 40,
-                                    child: Center(child: Text('SS', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 16)))),
+                                    child: Center(
+                                        child: Text('SS',
+                                            style: TextStyle(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.w600,
+                                                fontSize: 16)))),
                               ),
                               TableCell(
                                 child: SizedBox(
                                     height: 40,
                                     child: Center(
                                         child: Text(
-                                            controller.textEditingControllerRate.text.isEmpty?'--':
-                                          // (controller.ckgm * Utils.parseToDouble(controller.textEditingControllerRateLbs.text) * 2.2046226).toStringAsFixed(2),
-                                            ((Utils.parseToDouble(controller.kgFt.value) * Utils.parseToDouble(controller.textEditingControllerRateKg.text))).toStringAsFixed(2),
-                                            // '200',
+                                            ssRatePerMeter.toStringAsFixed(2),
                                             maxLines: 1,
-                                            style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16)))),
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.w600,
+                                                fontSize: 16)))),
                               ),
                               TableCell(
                                 child: SizedBox(
                                     height: 40,
                                     child: Center(
                                         child: Text(
-                                            controller.textEditingControllerRate.text.isEmpty?'--':
-                                          // ((controller.ckgm / 3.2808) * Utils.parseToDouble(controller.textEditingControllerRateLbs.text) * 2.2046226).toStringAsFixed(2),
-                                            ((Utils.parseToDouble(controller.kgFt.value) * Utils.parseToDouble(controller.textEditingControllerRateKg.text))/3.2808).toStringAsFixed(2),
-                                            // '2000',
+                                            ssRatePerFeet.toStringAsFixed(2),
                                             maxLines: 1,
-                                            style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16)))),
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.w600,
+                                                fontSize: 16)))),
                               ),
                             ]),
                       ],

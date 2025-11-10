@@ -7,8 +7,6 @@ import 'package:hmtl/Services/app_routes.dart';
 import 'package:hmtl/Utils/utils.dart';
 import 'package:sizer/sizer.dart';
 
-
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await SystemChrome.setPreferredOrientations([
@@ -30,15 +28,19 @@ class MyApp extends StatelessWidget {
       child: Sizer(
         builder: (buildContext, orientation, screenType) {
           return GetMaterialApp(
+            title: '',
             navigatorKey: Utils.navigatorKey,
             builder: (context, child) {
-              return ScrollConfiguration(behavior: CustomScrollBehavior(), child: child!);
+              return ScrollConfiguration(
+                  behavior: CustomScrollBehavior(), child: child!);
             },
             localizationsDelegates: [
               // GlobalMaterialLocalizations.delegate,
             ],
             debugShowCheckedModeBanner: false,
-            theme: ThemeData(colorSchemeSeed: Color(0xff17509d), scaffoldBackgroundColor: Color(0xffEFEFED)),
+            theme: ThemeData(
+                colorSchemeSeed: Color(0xff17509d),
+                scaffoldBackgroundColor: Color(0xffEFEFED)),
             initialRoute: AppRoutes.splash,
             getPages: AppPages.pages,
           );

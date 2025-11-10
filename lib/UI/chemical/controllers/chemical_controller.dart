@@ -1,16 +1,20 @@
 import 'dart:typed_data';
 
 import 'package:excel/excel.dart';
-import 'package:get/get.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
+import 'package:get/get.dart';
 import 'package:hmtl/Services/api_services.dart';
 import 'package:hmtl/UI/chemical/models/chemicals_model.dart';
 
 class ChemicalController extends GetxController {
-
   RxDouble kgm = 0.0.obs;
   RxDouble ckgm = 0.0.obs;
   RxString selectedGrade = ''.obs;
+
+  // --- ADDED: Controller and Filtered List ---
+  TextEditingController searchController = TextEditingController();
+  RxMap filteredChemicalMap = {}.obs;
 
   List gradeList = [
     'A53A',
@@ -191,7 +195,16 @@ class ChemicalController extends GetxController {
     super.onInit();
   }
 
-  Map globalChemicalMap = {};
+  // --- ADDED: Dispose controller ---
+  @override
+  void onClose() {
+    searchController.dispose();
+    super.onClose();
+  }
+
+  RxMap globalChemicalMap = {}.obs;
+  Rx<ChemicalsModel> chemicalsModel = ChemicalsModel().obs;
+
   void setChemicalsSheet() async {
     ByteData data = await rootBundle.load('assets/sheets/chemical.xlsx');
     Uint8List bytes = data.buffer.asUint8List();
@@ -207,34 +220,35 @@ class ChemicalController extends GetxController {
         // if (i == 0) {
         //   print(rows[i].map((cell) => cell?.value.toString() ?? ' ').toList());
         // } else if (i == 1) {}
-        if(i==0 || i==1){
+        if (i == 0 || i == 1) {
           continue;
         }
 
         globalChemicalMap[rows[i][0]?.value.toString()] = {
           '%C': rows[i][1]?.value,
-          '%Mn':rows[i][2]?.value,
-          '%P':rows[i][3]?.value,
-          '%S':rows[i][4]?.value,
-          '%Si':rows[i][5]?.value,
-          '%Cr':rows[i][6]?.value,
-          '%Cu':rows[i][7]?.value,
-          '%Mo':rows[i][8]?.value,
-          '%Ni':rows[i][9]?.value,
-          '%V':rows[i][10]?.value,
-          '%B':rows[i][11]?.value,
-          '%Nb':rows[i][12]?.value,
-          '%N':rows[i][13]?.value,
-          '%Al':rows[i][14]?.value,
-          '%TI':rows[i][15]?.value,
-          '%Zr':rows[i][16]?.value,
-          'Hardness':rows[i][17]?.value,
-          'Y.S.':rows[i][18]?.value,
-          'U.T.S.':rows[i][19]?.value,
-          '%E':rows[i][20]?.value,
+          '%Mn': rows[i][2]?.value,
+          '%P': rows[i][3]?.value,
+          '%S': rows[i][4]?.value,
+          '%Si': rows[i][5]?.value,
+          '%Cr': rows[i][6]?.value,
+          '%Cu': rows[i][7]?.value,
+          '%Mo': rows[i][8]?.value,
+          '%Ni': rows[i][9]?.value,
+          '%V': rows[i][10]?.value,
+          '%B': rows[i][11]?.value,
+          '%Nb': rows[i][12]?.value,
+          '%N': rows[i][13]?.value,
+          '%Al': rows[i][14]?.value,
+          '%TI': rows[i][15]?.value,
+          '%Zr': rows[i][16]?.value,
+          'Hardness': rows[i][17]?.value,
+          'Y.S.': rows[i][18]?.value,
+          'U.T.S.': rows[i][19]?.value,
+          '%E': rows[i][20]?.value,
         };
         // print('Row --${rows[i][0]?.value}-- ${rows[i].map((cell) => cell?.value.toString() ?? ' ').toList()}');
-        print('-----------------------------------------------------------------------------------------------------');
+        print(
+            '-----------------------------------------------------------------------------------------------------');
       }
 
       print('goo ${globalChemicalMap.length}');
@@ -242,23 +256,20 @@ class ChemicalController extends GetxController {
     }
   }
 
-  Rx<ChemicalsModel> chemicalsModel = ChemicalsModel().obs;
   void fetchChemicalsSheet() {
-    ApiService().getApi(url: 'https://intelliworkz.co.in/hmtl-portal/api/chemical').then((value) {
+    ApiService()
+        .getApi(url: 'https://intelliworkz.co.in/hmtl-portal/api/chemical')
+        .then((value) {
       if (value != null) {
         chemicalsModel.value = chemicalsModelFromJson(value);
 
         print('model-- ${chemicalsModel.value.data?.length}');
 
+        // --- ADDED: Create a temporary map to build before assigning ---
+        Map tempMap = {};
         for (int i = 0; i < chemicalsModel.value.data!.length; i++) {
-          // if (i == 0) {
-          //   print(rows[i].map((cell) => cell?.value.toString() ?? ' ').toList());
-          // } else if (i == 1) {}
-          // if(i==0 || i==1){
-          //   continue;
-          // }
-
-          globalChemicalMap[chemicalsModel.value.data![i].specificationGrade.toString()] = {
+          tempMap[chemicalsModel.value.data![i].specificationGrade.toString()] =
+              {
             '%C': chemicalsModel.value.data![i].c,
             '%Mn': chemicalsModel.value.data![i].Mn,
             '%P': chemicalsModel.value.data![i].p,
@@ -280,14 +291,40 @@ class ChemicalController extends GetxController {
             'U.T.S.': chemicalsModel.value.data![i].uts,
             '%E': chemicalsModel.value.data![i].e,
           };
-          // print('Row --${rows[i][0]?.value}-- ${rows[i].map((cell) => cell?.value.toString() ?? ' ').toList()}');
-          print('-----------------------------------------------------------------------------------------------------');
+          print(
+              '-----------------------------------------------------------------------------------------------------');
         }
 
+        // --- MODIFIED: Assign to the .value of the RxMap ---
+        // This single assignment will trigger the Obx to rebuild
+        globalChemicalMap.value = tempMap;
+        filteredChemicalMap.value = tempMap;
 
+        print(
+            '✅ globalChemicalMap populated with ${globalChemicalMap.length} items');
       }
     });
   }
 
+  // --- ADDED: Function to filter the list ---
+  void filterChemicalList(String query) {
+    if (query.isEmpty) {
+      // If search is empty, show the full list
+      filteredChemicalMap.value = globalChemicalMap.value;
+    } else {
+      // If searching, filter the map keys
+      var filteredEntries = globalChemicalMap.value.entries.where((entry) {
+        // Check if the key (grade name) contains the query
+        return entry.key.toString().toLowerCase().contains(query.toLowerCase());
+      });
+      // Create a new map from the filtered entries
+      filteredChemicalMap.value = Map.fromEntries(filteredEntries);
+    }
+  }
 
+  // --- ADDED: Function to reset search when modal closes ---
+  void resetSearch() {
+    searchController.clear();
+    filteredChemicalMap.value = globalChemicalMap.value;
+  }
 }

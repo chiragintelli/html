@@ -217,7 +217,11 @@ class _AboutViewState extends State<AboutView>
 
             indicatorColor: AppColor.primaryRedColor,
             tabs: [
-              Tab(icon: Icon(Icons.pages_outlined), text: 'Infra'),
+              Tab(
+                  icon: Icon(
+                    Icons.pages_outlined,
+                  ),
+                  text: 'Infra'),
               Tab(icon: Icon(Icons.inventory_2), text: 'Products'),
               Tab(icon: Icon(Icons.verified), text: 'Quality'),
             ],
@@ -272,14 +276,14 @@ class _AboutViewState extends State<AboutView>
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            buildActionButton('Visit hmtl.in', Icons.language,
-                Colors.blueAccent, _launchWebsite),
+            buildActionButton(
+                'Visit hmtl.in', Icons.language, Colors.blue, _launchWebsite),
             // buildActionButton(
             //     'Call Inquiry', Icons.phone, Colors.green, _launchPhoneCall),
             buildActionButton(
-              isDownloading ? 'Downloading...' : 'Download Brochure',
+              isDownloading ? 'Downloading...' : 'Brochure',
               isDownloading ? Icons.downloading : Icons.download,
-              Colors.orange,
+              Colors.brown,
               isDownloading ? null : () => _downloadAndOpenBrochure(),
             ),
           ],
@@ -320,7 +324,7 @@ class _AboutViewState extends State<AboutView>
       label: Text(
         label,
         style:
-            TextStyle(color: color, fontSize: 10, fontWeight: FontWeight.w600),
+            TextStyle(color: color, fontSize: 13, fontWeight: FontWeight.w600),
       ),
       style: TextButton.styleFrom(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
