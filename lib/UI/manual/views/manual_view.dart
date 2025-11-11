@@ -267,6 +267,7 @@ class _ManualViewState extends State<ManualView> {
                                           borderRadius:
                                               BorderRadius.circular(12)),
                                       child: TextField(
+                                        autofocus: true,
                                         controller:
                                             controller.textEditingControllerOd,
                                         focusNode: controller.focusNodeOd,

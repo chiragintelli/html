@@ -2,6 +2,8 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:get/get.dart';
+import 'package:hmtl/UI/about/controllers/about_controller.dart';
 import 'package:hmtl/Utils/app_colors.dart';
 import 'package:hmtl/Utils/app_strings.dart';
 import 'package:open_filex/open_filex.dart';
@@ -242,6 +244,8 @@ class _AboutViewState extends State<AboutView>
 
   /// --- INFRA TAB (styled like other tabs) ---
   Widget buildInfraTab() {
+    final controller = Get.put(AboutController());
+
     return ListView(
       padding: const EdgeInsets.all(12),
       children: [
@@ -271,19 +275,19 @@ class _AboutViewState extends State<AboutView>
         const SizedBox(height: 10),
         const Divider(thickness: 1),
         const SizedBox(height: 20),
-
-        /// --- ACTION BUTTONS ---
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             buildActionButton(
-                'Visit hmtl.in', Icons.language, Colors.blue, _launchWebsite),
-            // buildActionButton(
-            //     'Call Inquiry', Icons.phone, Colors.green, _launchPhoneCall),
+              'Visit hmtl.in',
+              Icons.language,
+              controller.linkColor,
+              _launchWebsite,
+            ),
             buildActionButton(
               isDownloading ? 'Downloading...' : 'Brochure',
               isDownloading ? Icons.downloading : Icons.download,
-              Colors.brown,
+              controller.brochureColor,
               isDownloading ? null : () => _downloadAndOpenBrochure(),
             ),
           ],
@@ -320,11 +324,15 @@ class _AboutViewState extends State<AboutView>
       String label, IconData icon, Color color, VoidCallback? onPressed) {
     return TextButton.icon(
       onPressed: onPressed,
-      icon: Icon(icon, color: color),
+      icon: Icon(
+        icon,
+        color: color,
+        size: 19,
+      ),
       label: Text(
         label,
         style:
-            TextStyle(color: color, fontSize: 13, fontWeight: FontWeight.w600),
+            TextStyle(color: color, fontSize: 16, fontWeight: FontWeight.w600),
       ),
       style: TextButton.styleFrom(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
@@ -334,87 +342,149 @@ class _AboutViewState extends State<AboutView>
 
   /// --- PRODUCT TAB ---
   Widget buildProductTab() {
-    return ListView.builder(
-      itemCount: productImageList.length,
-      padding: const EdgeInsets.all(12),
-      itemBuilder: (context, index) {
-        return Padding(
-          padding: const EdgeInsets.all(12.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+    final controller = Get.put(AboutController());
+
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          ListView.builder(
+            shrinkWrap: true,
+            physics: NeverScrollableScrollPhysics(),
+            itemCount: productImageList.length,
+            padding: const EdgeInsets.all(12),
+            itemBuilder: (context, index) {
+              return Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      productTitles[index],
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: Image.asset(
+                        productImageList[index],
+                        fit: BoxFit.fill,
+                        width: double.infinity,
+                        height: 180,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      productDescriptions[index],
+                      style:
+                          const TextStyle(fontSize: 14, color: Colors.black87),
+                      textAlign: TextAlign.justify,
+                    ),
+                    const SizedBox(height: 10),
+                    const Divider(),
+                  ],
+                ),
+              );
+            },
+          ),
+
+          /// --- ACTION BUTTONS ---
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              Text(
-                productTitles[index],
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
+              buildActionButton(
+                'Visit hmtl.in',
+                Icons.language,
+                controller.linkColor,
+                _launchWebsite,
               ),
-              const SizedBox(height: 8),
-              ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: Image.asset(
-                  productImageList[index],
-                  fit: BoxFit.fill,
-                  width: double.infinity,
-                  height: 180,
-                ),
+              buildActionButton(
+                isDownloading ? 'Downloading...' : 'Brochure',
+                isDownloading ? Icons.downloading : Icons.download,
+                controller.brochureColor,
+                isDownloading ? null : () => _downloadAndOpenBrochure(),
               ),
-              const SizedBox(height: 8),
-              Text(
-                productDescriptions[index],
-                style: const TextStyle(fontSize: 14, color: Colors.black87),
-                textAlign: TextAlign.justify,
-              ),
-              const SizedBox(height: 10),
-              const Divider(),
             ],
           ),
-        );
-      },
+          const SizedBox(height: 20),
+        ],
+      ),
     );
   }
 
   /// --- QUALITY TAB ---
   Widget buildQualityTab() {
-    return ListView.builder(
-      itemCount: qualityImageList.length,
-      padding: const EdgeInsets.all(12),
-      itemBuilder: (context, index) {
-        return Padding(
-          padding: const EdgeInsets.all(12.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+    final controller = Get.put(AboutController());
+
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          ListView.builder(
+            shrinkWrap: true,
+            physics: NeverScrollableScrollPhysics(),
+            itemCount: qualityImageList.length,
+            padding: const EdgeInsets.all(12),
+            itemBuilder: (context, index) {
+              return Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      qualityTitles[index],
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: Image.asset(
+                        qualityImageList[index],
+                        fit: BoxFit.cover,
+                        width: double.infinity,
+                        height: 180,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      qualityDescriptions[index],
+                      style:
+                          const TextStyle(fontSize: 14, color: Colors.black87),
+                      textAlign: TextAlign.justify,
+                    ),
+                    const SizedBox(height: 10),
+                    const Divider(),
+                  ],
+                ),
+              );
+            },
+          ),
+
+          /// --- ACTION BUTTONS ---
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              Text(
-                qualityTitles[index],
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
+              buildActionButton(
+                'Visit hmtl.in',
+                Icons.language,
+                controller.linkColor,
+                _launchWebsite,
               ),
-              const SizedBox(height: 8),
-              ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: Image.asset(
-                  qualityImageList[index],
-                  fit: BoxFit.cover,
-                  width: double.infinity,
-                  height: 180,
-                ),
+              buildActionButton(
+                isDownloading ? 'Downloading...' : 'Brochure',
+                isDownloading ? Icons.downloading : Icons.download,
+                controller.brochureColor,
+                isDownloading ? null : () => _downloadAndOpenBrochure(),
               ),
-              const SizedBox(height: 8),
-              Text(
-                qualityDescriptions[index],
-                style: const TextStyle(fontSize: 14, color: Colors.black87),
-                textAlign: TextAlign.justify,
-              ),
-              const SizedBox(height: 10),
-              const Divider(),
             ],
           ),
-        );
-      },
+          const SizedBox(height: 20),
+        ],
+      ),
     );
   }
 }
