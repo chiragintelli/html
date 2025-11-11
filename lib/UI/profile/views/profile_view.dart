@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:hmtl/UI/profile/controllers/profile_controller.dart';
 import 'package:hmtl/Utils/app_colors.dart';
@@ -41,13 +42,19 @@ class ProfileView extends GetView<ProfileController> {
     String hintText,
     Function(String) onChanged,
     TextInputType keyboardType, {
+    String? Function(String?)? validator,
+    List<TextInputFormatter>? inputFormatters,
     TextCapitalization capitalization = TextCapitalization.none,
     TextInputAction action = TextInputAction.next,
   }) {
     // We use the exact same decoration logic (border colors) from your original
     // but apply it to a cleaner, standard OutlineInputBorder.
-    return TextField(
+    return TextFormField(
+      inputFormatters: inputFormatters ?? [],
       controller: fieldController,
+
+      validator: validator,
+
       // Changed to 'start' to match the new label-over-field UI
       textAlign: TextAlign.start,
       textCapitalization: capitalization,
@@ -476,6 +483,11 @@ class ProfileView extends GetView<ProfileController> {
                       ? controller.userPhone.value
                       : 'Not Given')
                   : _buildEditField(
+                      inputFormatters: [
+                        FilteringTextInputFormatter.digitsOnly,
+                        LengthLimitingTextInputFormatter(10),
+                      ],
+
                       controller.userPhoneController,
                       'User-Phone',
                       // Preserving your exact onChanged logic
