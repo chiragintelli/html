@@ -267,176 +267,380 @@ class ProfileView extends GetView<ProfileController> {
                     ),
                     SizedBox(width: 10),
                     Flexible(
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                            visualDensity: VisualDensity.compact,
-                            elevation: 0,
-                            padding: EdgeInsets.zero,
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(6))),
-                        onPressed: () {
-                          debugPrint('💱 Opening currency selection dialog');
-                          showDialog(
-                            context: context,
-                            builder: (context) {
-                              debugPrint('💬 Currency dialog opened');
-                              return MediaQuery.removeViewInsets(
-                                context: context,
-                                removeBottom: true,
-                                child: Dialog(
-                                  backgroundColor: Colors.white,
-                                  clipBehavior: Clip.antiAlias,
+                      child: controller.editProfile.value
+                          ? ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                  visualDensity: VisualDensity.compact,
+                                  elevation: 0,
+                                  padding: EdgeInsets.zero,
                                   shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(16)),
-                                  child: SizedBox(
-                                    height: MediaQuery.of(context).size.height *
-                                        0.6,
-                                    child: Obx(() {
-                                      debugPrint(
-                                          '🔁 Currency dialog rebuilding (isFiltered: ${controller.isFiltered.value})');
-                                      return Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Container(
-                                            decoration: BoxDecoration(
-                                              color: AppColor.primaryBlueColor,
-                                            ),
-                                            padding: EdgeInsets.symmetric(
-                                                vertical: 15),
-                                            child: Column(children: [
-                                              Text(
-                                                'Exchange Currency',
-                                                style: TextStyle(
-                                                  fontSize: 20,
-                                                  fontWeight: FontWeight.w600,
-                                                  color: AppColor.whiteColor,
-                                                ),
-                                              ),
-                                              SizedBox(height: 10),
-                                              Padding(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                        horizontal: 12),
-                                                child: SizedBox(
-                                                  height: 40,
-                                                  child: TextField(
-                                                    onChanged: (value) {
-                                                      debugPrint(
-                                                          '🔍 Currency search text: $value');
-                                                      controller
-                                                          .filterCurrencyList(
-                                                              value);
-                                                    },
-                                                    decoration: InputDecoration(
-                                                      contentPadding:
-                                                          EdgeInsets.symmetric(
-                                                              horizontal: 10),
-                                                      hintText:
-                                                          'Search Currency',
-                                                      hintStyle: TextStyle(
-                                                          color: Colors.grey),
-                                                      filled: true,
-                                                      fillColor: Colors.white,
-                                                      enabledBorder:
-                                                          OutlineInputBorder(
-                                                              borderRadius:
-                                                                  BorderRadius
-                                                                      .circular(
-                                                                          8),
-                                                              borderSide: BorderSide(
-                                                                  color: Colors
-                                                                      .white)),
-                                                      focusedBorder:
-                                                          OutlineInputBorder(
-                                                              borderRadius:
-                                                                  BorderRadius
-                                                                      .circular(
-                                                                          8),
-                                                              borderSide: BorderSide(
-                                                                  color: Colors
-                                                                      .white)),
-                                                    ),
+                                      borderRadius: BorderRadius.circular(6))),
+                              onPressed: () {
+                                debugPrint(
+                                    '💱 Opening currency selection dialog');
+                                showDialog(
+                                  context: context,
+                                  builder: (context) {
+                                    debugPrint('💬 Currency dialog opened');
+                                    return MediaQuery.removeViewInsets(
+                                      context: context,
+                                      removeBottom: true,
+                                      child: Dialog(
+                                        backgroundColor: Colors.white,
+                                        clipBehavior: Clip.antiAlias,
+                                        shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(16)),
+                                        child: SizedBox(
+                                          height: MediaQuery.of(context)
+                                                  .size
+                                                  .height *
+                                              0.6,
+                                          child: Obx(() {
+                                            debugPrint(
+                                                '🔁 Currency dialog rebuilding (isFiltered: ${controller.isFiltered.value})');
+                                            return Column(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                Container(
+                                                  decoration: BoxDecoration(
+                                                    color: AppColor
+                                                        .primaryBlueColor,
                                                   ),
-                                                ),
-                                              ),
-                                            ]),
-                                          ),
-                                          Expanded(
-                                            child: SingleChildScrollView(
-                                              padding: EdgeInsets.symmetric(
-                                                  vertical: 10),
-                                              child: Column(
-                                                children: [
-                                                  if (!controller
-                                                      .isFiltered.value) ...[
-                                                    Row(
-                                                      children: [
-                                                        Expanded(
-                                                          child: Padding(
-                                                            padding:
-                                                                const EdgeInsets
-                                                                    .symmetric(
-                                                                    horizontal:
-                                                                        10),
-                                                            child: Divider(
-                                                              color: Colors.grey
-                                                                  .shade400,
-                                                              thickness: 1,
-                                                            ),
-                                                          ),
-                                                        ),
-                                                        Text(
-                                                          'Popular Currencies',
-                                                          style: TextStyle(
-                                                            fontSize: 18,
-                                                            fontWeight:
-                                                                FontWeight.w500,
-                                                          ),
-                                                        ),
-                                                        Expanded(
-                                                          child: Padding(
-                                                            padding:
-                                                                const EdgeInsets
-                                                                    .symmetric(
-                                                                    horizontal:
-                                                                        10),
-                                                            child: Divider(
-                                                              color: Colors.grey
-                                                                  .shade400,
-                                                              thickness: 1,
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ],
+                                                  padding: EdgeInsets.symmetric(
+                                                      vertical: 15),
+                                                  child: Column(children: [
+                                                    Text(
+                                                      'Exchange Currency',
+                                                      style: TextStyle(
+                                                        fontSize: 20,
+                                                        fontWeight:
+                                                            FontWeight.w600,
+                                                        color:
+                                                            AppColor.whiteColor,
+                                                      ),
                                                     ),
-                                                    Column(
-                                                      children: List.generate(
-                                                        controller.suggestedList
-                                                            .length,
-                                                        (index) {
-                                                          var country = controller
-                                                                  .suggestedList[
-                                                              index];
-                                                          if (country
-                                                              .isNotEmpty) {
-                                                            if (controller
-                                                                .selectedCurrency
-                                                                .isNotEmpty) {
-                                                              if (controller
-                                                                          .selectedCurrency[
-                                                                      0] ==
-                                                                  country[0]) {
+                                                    SizedBox(height: 10),
+                                                    Padding(
+                                                      padding: const EdgeInsets
+                                                          .symmetric(
+                                                          horizontal: 12),
+                                                      child: SizedBox(
+                                                        height: 40,
+                                                        child: TextField(
+                                                          onChanged: (value) {
+                                                            debugPrint(
+                                                                '🔍 Currency search text: $value');
+                                                            controller
+                                                                .filterCurrencyList(
+                                                                    value);
+                                                          },
+                                                          decoration:
+                                                              InputDecoration(
+                                                            contentPadding:
+                                                                EdgeInsets
+                                                                    .symmetric(
+                                                                        horizontal:
+                                                                            10),
+                                                            hintText:
+                                                                'Search Currency',
+                                                            hintStyle: TextStyle(
+                                                                color: Colors
+                                                                    .grey),
+                                                            filled: true,
+                                                            fillColor:
+                                                                Colors.white,
+                                                            enabledBorder: OutlineInputBorder(
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            8),
+                                                                borderSide: BorderSide(
+                                                                    color: Colors
+                                                                        .white)),
+                                                            focusedBorder: OutlineInputBorder(
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            8),
+                                                                borderSide: BorderSide(
+                                                                    color: Colors
+                                                                        .white)),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ]),
+                                                ),
+                                                Expanded(
+                                                  child: SingleChildScrollView(
+                                                    padding:
+                                                        EdgeInsets.symmetric(
+                                                            vertical: 10),
+                                                    child: Column(
+                                                      children: [
+                                                        if (!controller
+                                                            .isFiltered
+                                                            .value) ...[
+                                                          Row(
+                                                            children: [
+                                                              Expanded(
+                                                                child: Padding(
+                                                                  padding: const EdgeInsets
+                                                                      .symmetric(
+                                                                      horizontal:
+                                                                          10),
+                                                                  child:
+                                                                      Divider(
+                                                                    color: Colors
+                                                                        .grey
+                                                                        .shade400,
+                                                                    thickness:
+                                                                        1,
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                              Text(
+                                                                'Popular Currencies',
+                                                                style:
+                                                                    TextStyle(
+                                                                  fontSize: 18,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w500,
+                                                                ),
+                                                              ),
+                                                              Expanded(
+                                                                child: Padding(
+                                                                  padding: const EdgeInsets
+                                                                      .symmetric(
+                                                                      horizontal:
+                                                                          10),
+                                                                  child:
+                                                                      Divider(
+                                                                    color: Colors
+                                                                        .grey
+                                                                        .shade400,
+                                                                    thickness:
+                                                                        1,
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                          Column(
+                                                            children:
+                                                                List.generate(
+                                                              controller
+                                                                  .suggestedList
+                                                                  .length,
+                                                              (index) {
+                                                                var country =
+                                                                    controller
+                                                                            .suggestedList[
+                                                                        index];
+                                                                if (country
+                                                                    .isNotEmpty) {
+                                                                  if (controller
+                                                                      .selectedCurrency
+                                                                      .isNotEmpty) {
+                                                                    if (controller.selectedCurrency[
+                                                                            0] ==
+                                                                        country[
+                                                                            0]) {
+                                                                      return ListTile(
+                                                                        minTileHeight:
+                                                                            40,
+                                                                        onTap:
+                                                                            () {
+                                                                          debugPrint(
+                                                                              '✅ Selected existing currency: ${country[0]}');
+                                                                          controller
+                                                                              .selectedCurrency
+                                                                              .value = controller.suggestedList[index];
+                                                                          Get.back();
+                                                                        },
+                                                                        title: Text(country[0] +
+                                                                            ' - ' +
+                                                                            country[1]),
+                                                                        trailing: Icon(
+                                                                            Icons
+                                                                                .check_circle,
+                                                                            color:
+                                                                                AppColor.primaryBlueColor,
+                                                                            size: 25),
+                                                                      );
+                                                                    }
+                                                                  }
+
+                                                                  return ListTile(
+                                                                    minTileHeight:
+                                                                        40,
+                                                                    onTap: () {
+                                                                      debugPrint(
+                                                                          '💱 Currency selected from Popular: ${country[0]}');
+                                                                      controller
+                                                                          .selectedCurrency
+                                                                          .value = controller
+                                                                              .suggestedList[
+                                                                          index];
+                                                                      controller
+                                                                          .primaryCurrency
+                                                                          .value = controller
+                                                                              .selectedCurrency[
+                                                                          1];
+                                                                      controller
+                                                                          .primaryCurrencyCode
+                                                                          .value = controller
+                                                                              .selectedCurrency[
+                                                                          0];
+                                                                      controller.setCurrency(
+                                                                          controller.selectedCurrency[1]
+                                                                              .toString(),
+                                                                          controller
+                                                                              .selectedCurrency[0]
+                                                                              .toString());
+                                                                      Get.back();
+                                                                    },
+                                                                    title: Text(country[
+                                                                            0] +
+                                                                        ' - ' +
+                                                                        country[
+                                                                            1]),
+                                                                  );
+                                                                } else {
+                                                                  return SizedBox();
+                                                                }
+                                                              },
+                                                            ),
+                                                          ),
+                                                          Row(
+                                                            children: [
+                                                              Expanded(
+                                                                child: Padding(
+                                                                  padding: const EdgeInsets
+                                                                      .symmetric(
+                                                                      horizontal:
+                                                                          10),
+                                                                  child:
+                                                                      Divider(
+                                                                    color: Colors
+                                                                        .grey
+                                                                        .shade300,
+                                                                    thickness:
+                                                                        1,
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                              Text(
+                                                                'All',
+                                                                style:
+                                                                    TextStyle(
+                                                                  fontSize: 18,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w500,
+                                                                ),
+                                                              ),
+                                                              Expanded(
+                                                                child: Padding(
+                                                                  padding: const EdgeInsets
+                                                                      .symmetric(
+                                                                      horizontal:
+                                                                          10),
+                                                                  child:
+                                                                      Divider(
+                                                                    color: Colors
+                                                                        .grey
+                                                                        .shade300,
+                                                                    thickness:
+                                                                        1,
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        ],
+                                                        Column(
+                                                          children:
+                                                              List.generate(
+                                                            controller
+                                                                .filteredCountryList
+                                                                .length,
+                                                            (index) {
+                                                              var country =
+                                                                  controller
+                                                                          .filteredCountryList[
+                                                                      index];
+                                                              if (country
+                                                                  .isNotEmpty) {
+                                                                if (controller
+                                                                    .selectedCurrency
+                                                                    .isNotEmpty) {
+                                                                  if (controller
+                                                                              .selectedCurrency[
+                                                                          0] ==
+                                                                      country[
+                                                                          0]) {
+                                                                    return ListTile(
+                                                                      minTileHeight:
+                                                                          40,
+                                                                      onTap:
+                                                                          () {
+                                                                        debugPrint(
+                                                                            '✅ Selected existing currency (filtered): ${country[0]}');
+                                                                        controller
+                                                                            .selectedCurrency
+                                                                            .value = controller
+                                                                                .filteredCountryList[
+                                                                            index];
+                                                                        Get.back();
+                                                                      },
+                                                                      title: Text(country[
+                                                                              0] +
+                                                                          ' - ' +
+                                                                          country[
+                                                                              1]),
+                                                                      trailing: Icon(
+                                                                          Icons
+                                                                              .check_circle,
+                                                                          color: AppColor
+                                                                              .primaryBlueColor,
+                                                                          size:
+                                                                              25),
+                                                                    );
+                                                                  }
+                                                                }
+
                                                                 return ListTile(
                                                                   minTileHeight:
                                                                       40,
                                                                   onTap: () {
                                                                     debugPrint(
-                                                                        '✅ Selected existing currency: ${country[0]}');
+                                                                        '💱 Currency selected from All/Filtered: ${country[0]}');
                                                                     controller
                                                                         .selectedCurrency
                                                                         .value = controller
-                                                                            .suggestedList[
+                                                                            .filteredCountryList[
                                                                         index];
+                                                                    controller
+                                                                        .primaryCurrency
+                                                                        .value = controller
+                                                                            .selectedCurrency[
+                                                                        1];
+                                                                    controller
+                                                                        .primaryCurrencyCode
+                                                                        .value = controller
+                                                                            .selectedCurrency[
+                                                                        0];
+                                                                    controller.setCurrency(
+                                                                        controller
+                                                                            .selectedCurrency[
+                                                                                1]
+                                                                            .toString(),
+                                                                        controller
+                                                                            .selectedCurrency[0]
+                                                                            .toString());
                                                                     Get.back();
                                                                   },
                                                                   title: Text(country[
@@ -444,216 +648,52 @@ class ProfileView extends GetView<ProfileController> {
                                                                       ' - ' +
                                                                       country[
                                                                           1]),
-                                                                  trailing: Icon(
-                                                                      Icons
-                                                                          .check_circle,
-                                                                      color: AppColor
-                                                                          .primaryBlueColor,
-                                                                      size: 25),
                                                                 );
+                                                              } else {
+                                                                return SizedBox();
                                                               }
-                                                            }
-
-                                                            return ListTile(
-                                                              minTileHeight: 40,
-                                                              onTap: () {
-                                                                debugPrint(
-                                                                    '💱 Currency selected from Popular: ${country[0]}');
-                                                                controller
-                                                                    .selectedCurrency
-                                                                    .value = controller
-                                                                        .suggestedList[
-                                                                    index];
-                                                                controller
-                                                                        .primaryCurrency
-                                                                        .value =
-                                                                    controller
-                                                                        .selectedCurrency[1];
-                                                                controller
-                                                                        .primaryCurrencyCode
-                                                                        .value =
-                                                                    controller
-                                                                        .selectedCurrency[0];
-                                                                controller.setCurrency(
-                                                                    controller
-                                                                        .selectedCurrency[
-                                                                            1]
-                                                                        .toString(),
-                                                                    controller
-                                                                        .selectedCurrency[
-                                                                            0]
-                                                                        .toString());
-                                                                Get.back();
-                                                              },
-                                                              title: Text(
-                                                                  country[0] +
-                                                                      ' - ' +
-                                                                      country[
-                                                                          1]),
-                                                            );
-                                                          } else {
-                                                            return SizedBox();
-                                                          }
-                                                        },
-                                                      ),
-                                                    ),
-                                                    Row(
-                                                      children: [
-                                                        Expanded(
-                                                          child: Padding(
-                                                            padding:
-                                                                const EdgeInsets
-                                                                    .symmetric(
-                                                                    horizontal:
-                                                                        10),
-                                                            child: Divider(
-                                                              color: Colors.grey
-                                                                  .shade300,
-                                                              thickness: 1,
-                                                            ),
-                                                          ),
-                                                        ),
-                                                        Text(
-                                                          'All',
-                                                          style: TextStyle(
-                                                            fontSize: 18,
-                                                            fontWeight:
-                                                                FontWeight.w500,
-                                                          ),
-                                                        ),
-                                                        Expanded(
-                                                          child: Padding(
-                                                            padding:
-                                                                const EdgeInsets
-                                                                    .symmetric(
-                                                                    horizontal:
-                                                                        10),
-                                                            child: Divider(
-                                                              color: Colors.grey
-                                                                  .shade300,
-                                                              thickness: 1,
-                                                            ),
+                                                            },
                                                           ),
                                                         ),
                                                       ],
                                                     ),
-                                                  ],
-                                                  Column(
-                                                    children: List.generate(
-                                                      controller
-                                                          .filteredCountryList
-                                                          .length,
-                                                      (index) {
-                                                        var country = controller
-                                                                .filteredCountryList[
-                                                            index];
-                                                        if (country
-                                                            .isNotEmpty) {
-                                                          if (controller
-                                                              .selectedCurrency
-                                                              .isNotEmpty) {
-                                                            if (controller
-                                                                        .selectedCurrency[
-                                                                    0] ==
-                                                                country[0]) {
-                                                              return ListTile(
-                                                                minTileHeight:
-                                                                    40,
-                                                                onTap: () {
-                                                                  debugPrint(
-                                                                      '✅ Selected existing currency (filtered): ${country[0]}');
-                                                                  controller
-                                                                      .selectedCurrency
-                                                                      .value = controller
-                                                                          .filteredCountryList[
-                                                                      index];
-                                                                  Get.back();
-                                                                },
-                                                                title: Text(
-                                                                    country[0] +
-                                                                        ' - ' +
-                                                                        country[
-                                                                            1]),
-                                                                trailing: Icon(
-                                                                    Icons
-                                                                        .check_circle,
-                                                                    color: AppColor
-                                                                        .primaryBlueColor,
-                                                                    size: 25),
-                                                              );
-                                                            }
-                                                          }
-
-                                                          return ListTile(
-                                                            minTileHeight: 40,
-                                                            onTap: () {
-                                                              debugPrint(
-                                                                  '💱 Currency selected from All/Filtered: ${country[0]}');
-                                                              controller
-                                                                  .selectedCurrency
-                                                                  .value = controller
-                                                                      .filteredCountryList[
-                                                                  index];
-                                                              controller
-                                                                  .primaryCurrency
-                                                                  .value = controller
-                                                                      .selectedCurrency[
-                                                                  1];
-                                                              controller
-                                                                  .primaryCurrencyCode
-                                                                  .value = controller
-                                                                      .selectedCurrency[
-                                                                  0];
-                                                              controller.setCurrency(
-                                                                  controller
-                                                                      .selectedCurrency[
-                                                                          1]
-                                                                      .toString(),
-                                                                  controller
-                                                                      .selectedCurrency[
-                                                                          0]
-                                                                      .toString());
-                                                              Get.back();
-                                                            },
-                                                            title: Text(
-                                                                country[0] +
-                                                                    ' - ' +
-                                                                    country[1]),
-                                                          );
-                                                        } else {
-                                                          return SizedBox();
-                                                        }
-                                                      },
-                                                    ),
                                                   ),
-                                                ],
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      );
-                                    }),
-                                  ),
+                                                ),
+                                              ],
+                                            );
+                                          }),
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ).then((value) {
+                                  debugPrint(
+                                      '❌ Currency dialog closed → Resetting list');
+                                  controller.resetList();
+                                });
+                              },
+                              child: Container(
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 8, vertical: 0),
+                                child: Text(
+                                  controller.primaryCurrency.value,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600),
                                 ),
-                              );
-                            },
-                          ).then((value) {
-                            debugPrint(
-                                '❌ Currency dialog closed → Resetting list');
-                            controller.resetList();
-                          });
-                        },
-                        child: Container(
-                          padding:
-                              EdgeInsets.symmetric(horizontal: 8, vertical: 0),
-                          child: Text(
-                            controller.primaryCurrency.value,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                                fontSize: 14, fontWeight: FontWeight.w600),
-                          ),
-                        ),
-                      ),
+                              ),
+                            )
+                          : Container(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 8, vertical: 0),
+                              child: Text(
+                                controller.primaryCurrency.value,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                    fontSize: 14, fontWeight: FontWeight.w600),
+                              ),
+                            ),
                     )
                   ],
                 ),
