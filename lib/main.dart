@@ -5,10 +5,16 @@ import 'package:get_storage/get_storage.dart';
 import 'package:hmtl/Services/app_pages.dart';
 import 'package:hmtl/Services/app_routes.dart';
 import 'package:hmtl/Utils/utils.dart';
+import 'package:media_store_plus/media_store_plus.dart';
 import 'package:sizer/sizer.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  // REQUIRED — initialize the MediaStore plugin
+  await MediaStore.ensureInitialized();
+
+  // REQUIRED — your plugin needs an app folder
+  MediaStore.appFolder = "HMTL"; // you can name anything, but must not be empty
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
   ]);
@@ -28,7 +34,7 @@ class MyApp extends StatelessWidget {
       child: Sizer(
         builder: (buildContext, orientation, screenType) {
           return GetMaterialApp(
-            title: '',
+            title: 'HMT Calc',
             navigatorKey: Utils.navigatorKey,
             builder: (context, child) {
               return ScrollConfiguration(

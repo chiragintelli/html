@@ -1,4 +1,4 @@
-package com.safal.hmtl;
+package com.datanote.hmtl;
 
 import io.flutter.embedding.android.FlutterActivity;
 

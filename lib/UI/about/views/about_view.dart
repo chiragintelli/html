@@ -6,9 +6,12 @@ import 'package:get/get.dart';
 import 'package:hmtl/UI/about/controllers/about_controller.dart';
 import 'package:hmtl/Utils/app_colors.dart';
 import 'package:hmtl/Utils/app_strings.dart';
-import 'package:open_filex/open_filex.dart';
+import 'package:media_store_plus/media_store_plus.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
+
+final mediaStore = MediaStore();
 
 class AboutView extends StatefulWidget {
   const AboutView({super.key});
@@ -185,26 +188,94 @@ class _AboutViewState extends State<AboutView>
 
   Future<void> _downloadAndOpenBrochure() async {
     try {
+      debugPrint("📌 START: _downloadAndOpenBrochure()");
       setState(() => isDownloading = true);
 
-      // ✅ Step 1: Load the PDF from assets
-      final byteData = await rootBundle.load('assets/images/HMTL Brochure.pdf');
+      // STEP 1 — Load PDF from assets
+      debugPrint("📥 Loading asset PDF...");
+      final byteData = await rootBundle.load('assets/images/HMTL_Brochure.pdf');
+      final bytes = byteData.buffer.asUint8List();
 
-      // ✅ Step 2: Write to a temporary file
+      // STEP 2 — Create TEMP file
+      debugPrint("📄 Creating TEMP file...");
       final tempDir = await getTemporaryDirectory();
-      final file = File('${tempDir.path}/HMTL_Brochure.pdf');
-      await file.writeAsBytes(byteData.buffer.asUint8List());
+      final tempFilePath = "${tempDir.path}/HMTL_Brochure.pdf";
+      final tempFile = File(tempFilePath);
+      await tempFile.writeAsBytes(bytes);
+      debugPrint("✔ Temp file created at: $tempFilePath");
 
+      // ✅ FIX: Stop the spinner *before* showing the dialog
       setState(() => isDownloading = false);
 
-      // ✅ Step 3: Open in default PDF viewer
-      await OpenFilex.open(file.path);
+      debugPrint("📤 Sharing file to show chooser: $tempFilePath");
+      final xFile = XFile(tempFilePath);
+      await Share.shareXFiles([xFile], text: 'HMTL Brochure');
+      debugPrint("✔ Share dialog complete.");
+
+      debugPrint("📁 Saving copy to Downloads using MediaStore...");
+      mediaStore
+          .saveFile(
+        tempFilePath: tempFilePath,
+        dirType: DirType.download,
+        dirName: DirName.download,
+        relativePath: FilePath.root,
+      )
+          .then((saveInfo) {
+        if (saveInfo != null) {
+          debugPrint("✔ Saved copy successfully at: ${saveInfo.uri}");
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: const Text(
+              "PDF saved to Downloads",
+              style:
+                  TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+            ),
+
+            // --- Styling ---
+            backgroundColor: AppColor.primaryRedColor,
+            // Your app's red
+            behavior: SnackBarBehavior.floating,
+            // Lifts it up
+            margin: const EdgeInsets.all(12),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+
+            // --- The NEW Action Button ---
+            action: SnackBarAction(
+              label: "OPEN",
+              textColor: Colors.white,
+
+              // We define onPressed right here to use the 'saveInfo' variable
+              onPressed: () async {
+                try {
+                  // Use url_launcher to open the specific file URI
+                  if (!await launchUrl(saveInfo.uri)) {
+                    throw Exception('Could not launch ${saveInfo.uri}');
+                  }
+                } catch (e) {
+                  debugPrint("Could not open file: $e");
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                    content: Text(
+                        "Could not open file. Please check your Downloads folder."),
+                  ));
+                }
+              },
+            ),
+
+            // ---
+          ));
+        }
+      }).catchError((e) {
+        debugPrint("❌ Failed to save copy: $e");
+      });
+      // --- ⛔️ END OF FIX ⛔️ ---
     } catch (e) {
+      debugPrint("❌ ERROR: $e");
       setState(() => isDownloading = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error opening brochure: $e')),
-      );
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text("Error: $e")));
     }
+    debugPrint("🏁 END: _downloadAndOpenBrochure()");
   }
 
   @override
