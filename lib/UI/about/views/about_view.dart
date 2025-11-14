@@ -7,11 +7,19 @@ import 'package:hmtl/UI/about/controllers/about_controller.dart';
 import 'package:hmtl/Utils/app_colors.dart';
 import 'package:hmtl/Utils/app_strings.dart';
 import 'package:media_store_plus/media_store_plus.dart';
+import 'package:open_filex/open_filex.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:share_plus/share_plus.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-final mediaStore = MediaStore();
+Future<bool> requestStoragePermission() async {
+  // If already granted, allow
+  if (await Permission.storage.isGranted) return true;
+
+  // Request only storage (safe for Android ≤ 12)
+  final status = await Permission.storage.request();
+  return status.isGranted;
+}
 
 class AboutView extends StatefulWidget {
   const AboutView({super.key});
@@ -89,15 +97,6 @@ class _AboutViewState extends State<AboutView>
         "That's why we offer a range of packaging solutions tailored to meet the diverse needs of our customers and the specific requirements of each product.",
   ];
 
-  // --- 📞 Launch Phone Call ---
-  Future<void> _launchPhoneCall() async {
-    final Uri phoneUri =
-        Uri(scheme: 'tel', path: '+919876543210'); // Replace later
-    if (!await launchUrl(phoneUri)) {
-      throw Exception('Could not launch $phoneUri');
-    }
-  }
-
   /// --- 🌐 Open Website ---
   Future<void> _launchWebsite() async {
     final Uri websiteUri = Uri.parse('https://www.hmtl.in');
@@ -106,176 +105,175 @@ class _AboutViewState extends State<AboutView>
     }
   }
 
-  /// --- 📄 Download Brochure (Sample PDF Link) ---
-  Future<void> _downloadBrochure() async {
-    final Uri pdfUri = Uri.parse(
-      'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
-    );
-    if (!await launchUrl(pdfUri, mode: LaunchMode.externalApplication)) {
-      throw Exception('Could not open brochure');
+  bool isDownloading = false;
+
+  Future<String?> savePdfToDownloads(String tempFilePath) async {
+    try {
+      // appFolder and ensureInitialized are already set in main.dart
+      final mediaStore = MediaStore();
+
+      debugPrint("MediaStore: Calling saveFile...");
+      final info = await mediaStore.saveFile(
+        tempFilePath: tempFilePath,
+        dirType: DirType.download,
+        dirName: DirName.download, // Saves to Downloads/HMTL
+      );
+
+      if (info != null && info.uri != null) {
+        debugPrint("✔ File saved, URI: ${info.uri}");
+
+        // THIS IS THE FIX:
+        // Get the real file path from the content URI
+        debugPrint("MediaStore: Calling getFilePathFromUri...");
+        final path =
+            await mediaStore.getFilePathFromUri(uriString: info.uri.toString());
+
+        debugPrint("✔ Resolved path: $path");
+        return path;
+      } else {
+        debugPrint("❌ MediaStore save failed or returned no URI.");
+        return null;
+      }
+    } catch (e) {
+      debugPrint("❌ MediaStore save error: $e");
+      return null;
     }
   }
 
-  bool isDownloading = false;
-
-  // Future<void> _downloadAndOpenBrochure() async {
-  //   try {
-  //     // ✅ Step 1: Check Connectivity (WiFi/Data adapter)
-  //     final connectivityResult = await Connectivity().checkConnectivity();
-  //     if (connectivityResult == ConnectivityResult.none) {
-  //       ScaffoldMessenger.of(context).showSnackBar(
-  //         const SnackBar(content: Text('Internet connection not available.')),
-  //       );
-  //       return;
-  //     }
-  //
-  //     // ✅ Step 2: Verify Actual Internet Access
-  //     bool hasInternet = false;
-  //     try {
-  //       final result = await InternetAddress.lookup('google.com')
-  //           .timeout(const Duration(seconds: 3));
-  //       if (result.isNotEmpty && result.first.rawAddress.isNotEmpty) {
-  //         hasInternet = true;
-  //       }
-  //     } catch (_) {
-  //       hasInternet = false;
-  //     }
-  //
-  //     if (!hasInternet) {
-  //       ScaffoldMessenger.of(context).showSnackBar(
-  //         const SnackBar(content: Text('Internet connection not available.')),
-  //       );
-  //       return;
-  //     }
-  //
-  //     // ✅ Step 3: Proceed with download
-  //     setState(() => isDownloading = true);
-  //
-  //     const String pdfUrl =
-  //         'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf';
-  //     final Dio dio = Dio();
-  //
-  //     final dir = await getApplicationDocumentsDirectory();
-  //     final filePath = '${dir.path}/HMT_Brochure.pdf';
-  //
-  //     try {
-  //       await dio.download(pdfUrl, filePath);
-  //     } on DioException catch (_) {
-  //       setState(() => isDownloading = false);
-  //       ScaffoldMessenger.of(context).showSnackBar(
-  //         const SnackBar(content: Text('Failed to download. Please check internet.')),
-  //       );
-  //       return;
-  //     }
-  //
-  //     setState(() => isDownloading = false);
-  //
-  //     // ✅ Step 4: Open the file
-  //     if (await File(filePath).exists()) {
-  //       await OpenFilex.open(filePath);
-  //     } else {
-  //       ScaffoldMessenger.of(context).showSnackBar(
-  //         const SnackBar(content: Text('Download failed. Please try again.')),
-  //       );
-  //     }
-  //   } catch (e) {
-  //     setState(() => isDownloading = false);
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //       const SnackBar(content: Text('Internet connection not available.')),
-  //     );
-  //   }
-  // }
-
   Future<void> _downloadAndOpenBrochure() async {
-    try {
-      debugPrint("📌 START: _downloadAndOpenBrochure()");
-      setState(() => isDownloading = true);
+    if (isDownloading) {
+      debugPrint("⛔ Button blocked — Already downloading.");
+      return;
+    }
 
-      // STEP 1 — Load PDF from assets
-      debugPrint("📥 Loading asset PDF...");
+    debugPrint(
+        "\n\n================= 📄 BROCHURE PROCESS START =================");
+    try {
+      setState(() => isDownloading = true);
+      debugPrint("🔄 State: isDownloading = true");
+
+      // ==============================
+      // REQ 1: PERMISSION CHECK
+      // ==============================
+      debugPrint("🔍 Checking Storage Permission...");
+      final granted = await requestStoragePermission();
+      debugPrint("🔍 Permission Granted? → $granted");
+
+      if (!granted) {
+        debugPrint("❌ Permission denied. Showing snackbar.");
+        if (!mounted) {
+          debugPrint("❌ Widget unmounted. Exiting.");
+          return;
+        }
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Storage permission required.")),
+        );
+
+        setState(() => isDownloading = false);
+        debugPrint("🔄 State: isDownloading = false");
+        debugPrint(
+            "================= 📄 BROCHURE PROCESS END (Denied) =================\n\n");
+        return;
+      }
+
+      // STEP 2: Load PDF from assets
+      debugPrint("📥 Loading asset PDF: assets/images/HMTL_Brochure.pdf");
       final byteData = await rootBundle.load('assets/images/HMTL_Brochure.pdf');
       final bytes = byteData.buffer.asUint8List();
+      debugPrint("📥 Asset PDF Loaded (bytes: ${bytes.length})");
 
-      // STEP 2 — Create TEMP file
+      // STEP 3: Create TEMP file
       debugPrint("📄 Creating TEMP file...");
-      final tempDir = await getTemporaryDirectory();
-      final tempFilePath = "${tempDir.path}/HMTL_Brochure.pdf";
-      final tempFile = File(tempFilePath);
-      await tempFile.writeAsBytes(bytes);
-      debugPrint("✔ Temp file created at: $tempFilePath");
+      final dir = await getTemporaryDirectory();
+      final tempPath = "${dir.path}/HMTL_Brochure.pdf";
+      final tempFile = File(tempPath);
+      await tempFile.writeAsBytes(bytes, flush: true);
+      debugPrint("✔ TEMP PDF created at: $tempPath");
 
-      // ✅ FIX: Stop the spinner *before* showing the dialog
+      // STEP 4: SAVE to Downloads and get the FILE PATH
+      debugPrint("📁 Saving file to Downloads & getting path...");
+      final String? savedPath = await savePdfToDownloads(tempPath);
+
+      if (!mounted) {
+        debugPrint("❌ Widget unmounted during save. Exiting.");
+        return;
+      }
+
+      // Handle failed save (if path is null)
+      if (savedPath == null) {
+        debugPrint("❌ savePdfToDownloads returned NULL. Save failed.");
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Failed to save brochure.")),
+        );
+        setState(() => isDownloading = false);
+        debugPrint(
+            "================= 📄 BROCHURE PROCESS END (Save Fail) =================\n\n");
+        return;
+      }
+
+      debugPrint("✔ PDF successfully saved to path → $savedPath");
+
+      // STEP 5: Stop spinner *BEFORE* opening external app
       setState(() => isDownloading = false);
+      debugPrint("🔄 State: isDownloading = false (Before External Open)");
 
-      debugPrint("📤 Sharing file to show chooser: $tempFilePath");
-      final xFile = XFile(tempFilePath);
-      await Share.shareXFiles([xFile], text: 'HMTL Brochure');
-      debugPrint("✔ Share dialog complete.");
+      // STEP 6: Automatically open the saved file
+      debugPrint("📤 Automatically opening saved PDF: $savedPath");
+      OpenFilex.open(savedPath).then((result) {
+        // ============================================
+        // REQ 2: THIS BLOCK RUNS AFTER PDF VIEWER CLOSES
+        // ============================================
 
-      debugPrint("📁 Saving copy to Downloads using MediaStore...");
-      mediaStore
-          .saveFile(
-        tempFilePath: tempFilePath,
-        dirType: DirType.download,
-        dirName: DirName.download,
-        relativePath: FilePath.root,
-      )
-          .then((saveInfo) {
-        if (saveInfo != null) {
-          debugPrint("✔ Saved copy successfully at: ${saveInfo.uri}");
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: const Text(
-              "PDF saved to Downloads",
-              style:
-                  TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-            ),
+        debugPrint("\n===== 📤 EXTERNAL VIEWER RETURNED =====");
+        debugPrint("📤 External Result Type: ${result.type}");
+        debugPrint("📤 External Result Message: ${result.message}");
 
-            // --- Styling ---
-            backgroundColor: AppColor.primaryRedColor,
-            // Your app's red
-            behavior: SnackBarBehavior.floating,
-            // Lifts it up
-            margin: const EdgeInsets.all(12),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-
-            // --- The NEW Action Button ---
-            action: SnackBarAction(
-              label: "OPEN",
-              textColor: Colors.white,
-
-              // We define onPressed right here to use the 'saveInfo' variable
-              onPressed: () async {
-                try {
-                  // Use url_launcher to open the specific file URI
-                  if (!await launchUrl(saveInfo.uri)) {
-                    throw Exception('Could not launch ${saveInfo.uri}');
-                  }
-                } catch (e) {
-                  debugPrint("Could not open file: $e");
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                    content: Text(
-                        "Could not open file. Please check your Downloads folder."),
-                  ));
-                }
-              },
-            ),
-
-            // ---
-          ));
+        if (!mounted) {
+          debugPrint("❌ Widget unmounted AFTER external return. Skipping.");
+          return;
         }
-      }).catchError((e) {
-        debugPrint("❌ Failed to save copy: $e");
+
+        // Show "Saved" SnackBar ONLY if the viewer closed normally
+        if (result.type == ResultType.done) {
+          debugPrint("✔ External viewer closed normally. Showing SnackBar.");
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text("PDF saved to Downloads"),
+              backgroundColor: AppColor.primaryRedColor,
+              behavior: SnackBarBehavior.floating,
+              margin: const EdgeInsets.all(12),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+          );
+        } else {
+          // Handle open *failure*
+          debugPrint("❌ External viewer failed to open file.");
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("Could not open file: ${result.message}")),
+          );
+        }
+        debugPrint("===== 📤 END OF EXTERNAL VIEWER PROCESS =====\n");
       });
-      // --- ⛔️ END OF FIX ⛔️ ---
-    } catch (e) {
-      debugPrint("❌ ERROR: $e");
-      setState(() => isDownloading = false);
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text("Error: $e")));
+    } catch (e, stack) {
+      debugPrint("❌ Exception: $e");
+      debugPrint("🧵 Stack Trace: $stack");
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text("Error: $e")));
+      }
+    } finally {
+      // This 'finally' block now only runs if an exception happens *before*
+      // OpenFilex is called, or if the widget is unmounted.
+      if (mounted && isDownloading) {
+        setState(() => isDownloading = false);
+        debugPrint("🔄 State: isDownloading = false (Finally)");
+      }
+      debugPrint(
+          "================= 📄 BROCHURE PROCESS END =================\n\n");
     }
-    debugPrint("🏁 END: _downloadAndOpenBrochure()");
   }
 
   @override
@@ -286,8 +284,7 @@ class _AboutViewState extends State<AboutView>
         appBar: AppBar(
           title: const Text('About HMT'),
           bottom: TabBar(
-            controller: _tabController, // ✅ Connected here
-
+            controller: _tabController,
             indicatorColor: AppColor.primaryRedColor,
             tabs: [
               Tab(
