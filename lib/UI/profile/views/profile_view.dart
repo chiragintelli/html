@@ -7,7 +7,6 @@ import 'package:hmtl/Utils/app_colors.dart';
 class ProfileView extends GetView<ProfileController> {
   const ProfileView({super.key});
 
-  // 🎨 UI Helper for field labels
   Widget _buildLabel(String label) {
     return Text(
       label.toUpperCase(),
@@ -20,7 +19,6 @@ class ProfileView extends GetView<ProfileController> {
     );
   }
 
-  // 🎨 UI Helper for displaying data in "View Mode"
   Widget _buildViewField(String text) {
     return Container(
       width: double.infinity,
@@ -544,23 +542,36 @@ class ProfileView extends GetView<ProfileController> {
                     ),
                     elevation: 2,
                   ),
-                  // ---
-                  // --- CORRECTED LOGIC HERE ---
-                  // ---
-                  // This now matches your requirement to NOT change logic
-                  // and only toggles the editProfile state.
-                  onPressed: () {
-                    debugPrint('🔘 Edit/Save button pressed');
 
-                    // This just toggles the state, no save function is called.
-                    controller.editProfile.toggle();
+                  onPressed: () {
+                    debugPrint(
+                        "🟢 BUTTON PRESSED, current = ${controller.editProfile.value}");
+
+                    if (controller.editProfile.value == false) {
+                      // ✏️ Switch to edit mode
+                      debugPrint("✏️ Switching to EDIT MODE");
+
+                      // 🟢 IMPORTANT FIX — fill controllers with saved data
+                      controller.userNameController.text =
+                          controller.userName.value;
+                      controller.userEmailController.text =
+                          controller.userEmail.value;
+                      controller.userPhoneController.text =
+                          controller.userPhone.value;
+                      controller.userCompanyController.text =
+                          controller.userCompany.value;
+
+                      controller.editProfile.value = true;
+                    } else {
+                      // 💾 Save
+                      debugPrint("💾 Saving profile...");
+                      controller.saveProfileDetails();
+                      controller.editProfile.value = false;
+                    }
 
                     debugPrint(
-                        '🔄 Toggled editProfile to: ${controller.editProfile.value}');
+                        "🔵 AFTER button action: ${controller.editProfile.value}");
                   },
-                  // ---
-                  // --- END OF CORRECTION ---
-                  // ---
 
                   // Preserving your exact text-toggle logic
                   child: Text(

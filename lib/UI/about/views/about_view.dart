@@ -14,10 +14,10 @@ import 'package:url_launcher/url_launcher.dart';
 
 Future<bool> requestStoragePermission() async {
   // If already granted, allow
-  if (await Permission.storage.isGranted) return true;
+  if (await Permission.mediaLibrary.isGranted) return true;
 
   // Request only storage (safe for Android ≤ 12)
-  final status = await Permission.storage.request();
+  final status = await Permission.mediaLibrary.request();
   return status.isGranted;
 }
 
@@ -278,34 +278,31 @@ class _AboutViewState extends State<AboutView>
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 3,
-      child: Scaffold(
-        appBar: AppBar(
-          title: const Text('About HMT'),
-          bottom: TabBar(
-            controller: _tabController,
-            indicatorColor: AppColor.primaryRedColor,
-            tabs: [
-              Tab(
-                  icon: Icon(
-                    Icons.pages_outlined,
-                  ),
-                  text: 'Infra'),
-              Tab(icon: Icon(Icons.inventory_2), text: 'Products'),
-              Tab(icon: Icon(Icons.verified), text: 'Quality'),
-            ],
-          ),
-        ),
-        body: TabBarView(
-          physics: const NeverScrollableScrollPhysics(),
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('About HMT'),
+        bottom: TabBar(
           controller: _tabController,
-          children: [
-            buildInfraTab(),
-            buildProductTab(),
-            buildQualityTab(),
+          indicatorColor: AppColor.primaryRedColor,
+          tabs: [
+            Tab(
+                icon: Icon(
+                  Icons.pages_outlined,
+                ),
+                text: 'Infra'),
+            Tab(icon: Icon(Icons.inventory_2), text: 'Products'),
+            Tab(icon: Icon(Icons.verified), text: 'Quality'),
           ],
         ),
+      ),
+      body: TabBarView(
+        physics: const NeverScrollableScrollPhysics(),
+        controller: _tabController,
+        children: [
+          buildInfraTab(),
+          buildProductTab(),
+          buildQualityTab(),
+        ],
       ),
     );
   }

@@ -4,17 +4,17 @@ import 'package:get_storage/get_storage.dart';
 import 'package:hmtl/Utils/app_colors.dart';
 
 class Utils {
-
   static GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
-  static double parseToDouble(String input, {bool?  toMM, bool? fromMm}) {
+  static double parseToDouble(String input, {bool? toMM, bool? fromMm}) {
     input = input.trim();
     // print('input --- ${input}');
-    if(input.contains(' ')){
+    if (input.contains(' ')) {
       final values = input.split(' ');
       double totalValue;
-      if(toMM==true){
-        totalValue = parseToDouble(values[0], toMM: true) + parseToDouble(values[1], toMM: true);
+      if (toMM == true) {
+        totalValue = parseToDouble(values[0], toMM: true) +
+            parseToDouble(values[1], toMM: true);
       } else {
         totalValue = parseToDouble(values[0]) + parseToDouble(values[1]);
       }
@@ -28,7 +28,7 @@ class Utils {
         final denominator = double.tryParse(parts[1]);
         if (numerator != null && denominator != null && denominator != 0) {
           print('n - $numerator d - $denominator mm - $toMM');
-          if(toMM==true){
+          if (toMM == true) {
             return (numerator * 25.4) / denominator;
           } else {
             return numerator / denominator;
@@ -41,10 +41,10 @@ class Utils {
 
     final value = double.tryParse(input);
     if (value != null) {
-      if(toMM==true){
+      if (toMM == true) {
         return value * 25.4;
       }
-      if(fromMm==true){
+      if (fromMm == true) {
         return value / 25.4;
       }
       return value;
@@ -53,7 +53,8 @@ class Utils {
     throw FormatException("Invalid number format2 $value");
   }
 
-  static showSnackBar({required String message, EdgeInsets? padding, bool? error}) {
+  static showSnackBar(
+      {required String message, EdgeInsets? padding, bool? error}) {
     if (error == true) {
       Get.showSnackbar(
         GetSnackBar(
@@ -66,22 +67,21 @@ class Utils {
           padding: EdgeInsets.all(3),
           backgroundColor: AppColor.primaryBlueColor,
           messageText: Container(
-            // color: AppColor.lightBlueOffColor,
-            // padding: EdgeInsets.all(3),
-            child: Container(
-              padding: EdgeInsets.all(4),
-              decoration: BoxDecoration(
-                color: AppColor.lightBlueOffColor,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Container(
-                  padding: EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: AppColor.whiteColor,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Text('Something went wrong!', style: TextStyle(color: Colors.black),)),
+            padding: EdgeInsets.all(4),
+            decoration: BoxDecoration(
+              color: AppColor.lightBlueOffColor,
+              borderRadius: BorderRadius.circular(12),
             ),
+            child: Container(
+                padding: EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: AppColor.whiteColor,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Text(
+                  'Something went wrong!',
+                  style: TextStyle(color: Colors.black),
+                )),
           ),
         ),
       );
@@ -112,13 +112,15 @@ class Utils {
                   color: AppColor.whiteColor,
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: Text(message, style: TextStyle(color: Colors.black),)),
+                child: Text(
+                  message,
+                  style: TextStyle(color: Colors.black),
+                )),
           ),
         ),
       ),
     );
   }
-
 }
 
 class StorageService {

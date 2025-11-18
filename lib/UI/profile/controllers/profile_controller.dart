@@ -13,9 +13,21 @@ class ProfileController extends GetxController {
   @override
   void onInit() {
     debugPrint('🔹 ProfileController onInit() called');
+
+    // 🛠 FIX: Force edit mode OFF every time the Profile screen opens
+    editProfile(false);
+    debugPrint('🔧 editProfile reset to FALSE inside onInit()');
+
+    // Load saved user profile
+    debugPrint('📥 Calling fetchProfile()...');
     fetchProfile();
+
+    // Load currency list from API
+    debugPrint('🌍 Calling fetchCurrencyCountries()...');
     fetchCurrencyCountries();
+
     super.onInit();
+    debugPrint('✅ ProfileController onInit() completed successfully');
   }
 
   List recommends = [
