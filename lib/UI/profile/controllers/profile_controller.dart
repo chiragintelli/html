@@ -1,8 +1,9 @@
 import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart'; // 1. Added this import
 import 'package:get/get.dart';
-import 'package:hmtl/Services/api_services.dart';
+// import 'package:hmtl/Services/api_services.dart'; // 2. Commented out API service
 import 'package:hmtl/Utils/utils.dart';
 
 class ProfileController extends GetxController {
@@ -22,7 +23,7 @@ class ProfileController extends GetxController {
     debugPrint('📥 Calling fetchProfile()...');
     fetchProfile();
 
-    // Load currency list from API
+    // Load currency list from LOCAL ASSETS
     debugPrint('🌍 Calling fetchCurrencyCountries()...');
     fetchCurrencyCountries();
 
@@ -48,27 +49,35 @@ class ProfileController extends GetxController {
   RxList filteredCountryList = [].obs;
   RxMap currencyDetails = {}.obs;
 
-  void fetchCurrencyCountries() {
-    debugPrint('🔹 fetchCurrencyCountries() started');
-    ApiService()
-        .getApi(
-            url:
-                'https://v6.exchangerate-api.com/v6/cb61912390612c8d94615387/codes')
-        .then((value) {
-      if (value != null) {
-        debugPrint('✅ Currency API fetched successfully');
+  // 3. CHANGED: This function now loads from local JSON file
+  void fetchCurrencyCountries() async {
+    debugPrint('🔹 fetchCurrencyCountries() started (OFFLINE MODE)');
+
+    try {
+      // Load local JSON instead of API call
+      final value =
+          await rootBundle.loadString('assets/images/currencies.json');
+
+      if (value.isNotEmpty) {
+        debugPrint('✅ Currency JSON loaded successfully from assets');
         currencyDetails.value = jsonDecode(value);
         filteredCountryList.value = currencyDetails['supported_codes'];
 
         debugPrint(
             '✅ Supported Codes Count: ${filteredCountryList.length.toString()}');
 
+        // Your existing logic to build suggestedList
         for (var element in recommends) {
           try {
-            suggestedList.add((currencyDetails['supported_codes'] as List)
-                .where((e) => e[0] == element.toString())
-                .first);
-            debugPrint('⭐ Added to suggestedList: $element');
+            // Using firstWhere to safely find the item or return null
+            var found = (currencyDetails['supported_codes'] as List).firstWhere(
+                (e) => e[0] == element.toString(),
+                orElse: () => null);
+
+            if (found != null) {
+              suggestedList.add(found);
+              debugPrint('⭐ Added to suggestedList: $element');
+            }
           } catch (e) {
             debugPrint('⚠️ $element not found in supported_codes');
           }
@@ -77,11 +86,11 @@ class ProfileController extends GetxController {
         debugPrint('✅ Suggested list ready (${suggestedList.length} items)');
         debugPrint('SuggestedList Data: ${suggestedList.toString()}');
       } else {
-        debugPrint('⚠️ Currency API returned null response');
+        debugPrint('⚠️ Currency JSON file was empty');
       }
-    }).catchError((e) {
+    } catch (e) {
       debugPrint('❌ Error in fetchCurrencyCountries(): $e');
-    });
+    }
   }
 
   RxBool isFiltered = false.obs;
@@ -97,8 +106,11 @@ class ProfileController extends GetxController {
           '🔍 Filtering currencies for keyword: "$value" from supported_codes');
       filteredCountryList.value = (currencyDetails['supported_codes'] as List)
           .where((element) =>
-              element[0].toLowerCase().contains(value.toLowerCase()) ||
-              element[1].toLowerCase().contains(value.toLowerCase()))
+              element[0]
+                  .toString()
+                  .toLowerCase()
+                  .contains(value.toLowerCase()) ||
+              element[1].toString().toLowerCase().contains(value.toLowerCase()))
           .toList();
       debugPrint(
           '✅ Filtered results found: ${filteredCountryList.length.toString()}');
@@ -113,22 +125,8 @@ class ProfileController extends GetxController {
         '✅ filteredCountryList reset to ${filteredCountryList.length.toString()} items');
   }
 
-  // void setCurrency(String value, String code) async {
-  //   debugPrint('🔹 setCurrency() called with: $value ($code)');
-  //   await StorageService.setStorage(key: 'primaryCurrency', value: value);
-  //   await StorageService.setStorage(key: 'primaryCurrencyCode', value: code);
-  //   debugPrint('✅ Currency saved locally: $value / $code');
-  // }
-
   void setCurrency(String value, String code) async {
     debugPrint('🔹 setCurrency() called with: $value ($code)');
-
-    // // existing lines
-    // await StorageService.setStorage(key: 'primaryCurrency', value: value);
-    // await StorageService.setStorage(key: 'primaryCurrencyCode', value: code);
-    //
-    // // 🆕 add this line to fix AED→INR fallback issue
-    // await StorageService.setStorage(key: 'primaryCurrencyName', value: value);
 
     // Save the name and non-triggering keys FIRST
     await StorageService.setStorage(key: 'primaryCurrency', value: value);

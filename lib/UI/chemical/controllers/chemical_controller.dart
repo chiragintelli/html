@@ -12,7 +12,6 @@ class ChemicalController extends GetxController {
   RxDouble ckgm = 0.0.obs;
   RxString selectedGrade = ''.obs;
 
-  // --- ADDED: Controller and Filtered List ---
   TextEditingController searchController = TextEditingController();
   RxMap filteredChemicalMap = {}.obs;
 
@@ -190,7 +189,6 @@ class ChemicalController extends GetxController {
   @override
   void onInit() {
     // TODO: implement onInit
-    // setChemicalsSheet();
     fetchChemicalsSheet();
     super.onInit();
   }

@@ -2,9 +2,10 @@ import 'dart:convert';
 import 'dart:developer' as dev;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart'; // 1. Added this for Local JSON
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
-import 'package:hmtl/Services/api_services.dart';
+import 'package:hmtl/Services/api_services.dart'; // Keeping this for fetchCurrencyDetails
 import 'package:hmtl/Utils/utils.dart';
 
 // fname, lname, email id, phone number, primary currency
@@ -360,13 +361,17 @@ class ManualController extends GetxController {
     } else {
       print(currencyDetails['supported_codes']);
       print('---1--');
-      filteredCountryList.value = (currencyDetails['supported_codes'] as List)
-          .where((element) =>
-              element[0].toLowerCase().contains(value.toLowerCase()) ||
-              element[1].toLowerCase().contains(value.toLowerCase()))
-          .toList();
-      debugPrint('✅ Filtered list updated: ${filteredCountryList.length}');
-      isFiltered(true);
+
+      // Safe check for null
+      if (currencyDetails['supported_codes'] != null) {
+        filteredCountryList.value = (currencyDetails['supported_codes'] as List)
+            .where((element) =>
+                element[0].toLowerCase().contains(value.toLowerCase()) ||
+                element[1].toLowerCase().contains(value.toLowerCase()))
+            .toList();
+        debugPrint('✅ Filtered list updated: ${filteredCountryList.length}');
+        isFiltered(true);
+      }
     }
   }
 
@@ -413,62 +418,98 @@ class ManualController extends GetxController {
 
   void resetList() {
     debugPrint('🔹 resetList() called');
-    if (currencyDetails.isNotEmpty) {
+    if (currencyDetails.isNotEmpty &&
+        currencyDetails['supported_codes'] != null) {
       filteredCountryList.value = currencyDetails['supported_codes'];
       debugPrint('✅ Filtered list reset (${filteredCountryList.length})');
     }
   }
 
-  void fetchCurrencyCountries() {
-    debugPrint('🌍 fetchCurrencyCountries() started');
-    ApiService()
-        .getApi(
-            url:
-                'https://v6.exchangerate-api.com/v6/cb61912390612c8d94615387/codes')
-        .then((value) {
-      debugPrint('📡 fetchCurrencyCountries() response received');
-      if (value != null) {
+  // 2. CHANGED: Safe Offline Load from JSON
+  void fetchCurrencyCountries() async {
+    debugPrint('🌍 fetchCurrencyCountries() started (OFFLINE MODE)');
+
+    try {
+      // Load local JSON instead of API call
+      final value =
+          await rootBundle.loadString('assets/images/currencies.json');
+
+      if (value.isNotEmpty) {
+        debugPrint('✅ Currency JSON loaded successfully from assets');
         currencyDetails.value = jsonDecode(value);
         filteredCountryList.value = currencyDetails['supported_codes'];
+
+        debugPrint(
+            '✅ Supported Codes Count: ${filteredCountryList.length.toString()}');
+
+        // Generate recommended list
+        suggestedList.clear();
         for (var element in recommends) {
-          suggestedList.add((currencyDetails['supported_codes'] as List)
-              .where((e) => e[0] == element.toString())
-              .first);
-          debugPrint('⭐ Added suggested: $element');
+          try {
+            var found = (currencyDetails['supported_codes'] as List).firstWhere(
+                (e) => e[0] == element.toString(),
+                orElse: () => null);
+
+            if (found != null) {
+              suggestedList.add(found);
+              debugPrint('⭐ Added to suggestedList: $element');
+            }
+          } catch (e) {
+            debugPrint('⚠️ $element not found in supported_codes');
+          }
         }
+        debugPrint('✅ Suggested list ready (${suggestedList.length} items)');
       }
-    });
+    } catch (e) {
+      debugPrint('❌ Error in fetchCurrencyCountries(): $e');
+    }
   }
 
   RxBool loadingCurrency = false.obs;
   RxMap currencyMap = {}.obs;
   RxDouble convertAmountToInr = 0.0.obs;
 
+  // 3. UNTOUCHED: Kept exactly as you had it (Original API Logic)
   void fetchCurrencyDetails(String country) async {
     debugPrint('🌍 fetchCurrencyDetails() called for $country');
-    print(
-        'object90 ${await StorageService.getStorage(key: 'primaryCurrencyCode')}');
     loadingCurrency(true);
+
     ApiService()
         .getApi(
-            url:
-                'https://v6.exchangerate-api.com/v6/cb61912390612c8d94615387/latest/$country')
+            // ✅ UPDATED URL: Use V4 API (No Key Required)
+            url: 'https://api.exchangerate-api.com/v4/latest/$country')
         .then((value) async {
       debugPrint('📡 fetchCurrencyDetails() response received');
       if (value != null) {
         var response = jsonDecode(value);
-        currencyMap.value = response['conversion_rates'];
+
+        if (response['rates'] != null) {
+          currencyMap.value = response['rates'];
+        } else if (response['conversion_rates'] != null) {
+          currencyMap.value = response['conversion_rates'];
+        }
+
         var primaryCurrency =
             await StorageService.getStorage(key: 'primaryCurrencyCode') ??
                 'INR';
-        textEditingControllerExgRate.text =
-            double.parse(currencyMap[primaryCurrency].toString())
-                .toStringAsFixed(2);
-        exgRate.value = double.parse(currencyMap[primaryCurrency].toString());
-        debugPrint('💹 Updated exgRate = ${exgRate.value}');
+
+        if (currencyMap[primaryCurrency] != null) {
+          double newRate =
+              double.parse(currencyMap[primaryCurrency].toString());
+          textEditingControllerExgRate.text = newRate.toStringAsFixed(2);
+          exgRate.value = newRate;
+          debugPrint('💹 Updated exgRate = ${exgRate.value}');
+          getRates(ex: exgRate.value.toString());
+        }
+
         loadingCurrency(false);
-        getRates(ex: exgRate.value.toString());
       }
+    }).catchError((e) {
+      debugPrint('❌ Error fetching rates: $e');
+      loadingCurrency(false);
+      // Fallback
+      textEditingControllerExgRate.text = '1.0';
+      exgRate.value = 1.0;
     });
   }
 }

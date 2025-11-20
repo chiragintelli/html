@@ -1,10 +1,9 @@
 import 'dart:convert';
 import 'dart:developer' as dev;
-import 'dart:typed_data';
 
 import 'package:excel/excel.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/services.dart' show rootBundle;
+import 'package:flutter/services.dart'; // For rootBundle (Offline JSON)
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:hmtl/Services/api_services.dart';
@@ -19,6 +18,8 @@ class NpsController extends GetxController {
   @override
   void onInit() {
     debugPrint('🔹 NpsController onInit() called');
+
+    // 1. CHANGED: Load Offline JSON
     fetchCurrencyCountries();
     readExcelFromAssets();
 
@@ -59,6 +60,7 @@ class NpsController extends GetxController {
         getRates(ex: '1.0');
       } else {
         debugPrint('🌍 Fetching currency details for $savedCode');
+        // 2. Calls the fixed V4 API function
         fetchCurrencyDetails(savedCode);
       }
     } else {
@@ -90,31 +92,40 @@ class NpsController extends GetxController {
     'QAR',
     'RUB',
     'CNY',
-    'JPY',
+    'JPY'
   ];
   RxList suggestedList = [].obs;
   RxList filteredCountryList = [].obs;
   RxMap currencyDetails = {}.obs;
   RxList selectedCurrency = [].obs;
 
-  void fetchCurrencyCountries() {
-    debugPrint('🌍 fetchCurrencyCountries() started');
-    ApiService()
-        .getApi(
-            url:
-                'https://v6.exchangerate-api.com/v6/cb61912390612c8d94615387/codes')
-        .then((value) {
-      debugPrint('📡 fetchCurrencyCountries() response received');
-      if (value != null) {
+  // 3. CHANGED: Offline List Loading (Safe Mode)
+  void fetchCurrencyCountries() async {
+    debugPrint('🌍 fetchCurrencyCountries() started (OFFLINE MODE)');
+    try {
+      // Load local JSON instead of API call
+      final value =
+          await rootBundle.loadString('assets/images/currencies.json');
+
+      if (value.isNotEmpty) {
+        debugPrint('✅ Currency JSON loaded successfully from assets');
         currencyDetails.value = jsonDecode(value);
         filteredCountryList.value = currencyDetails['supported_codes'];
+
+        suggestedList.clear();
         for (var element in recommends) {
-          suggestedList.add((currencyDetails['supported_codes'] as List)
-              .where((e) => e[0] == element.toString())
-              .first);
+          try {
+            var found = (currencyDetails['supported_codes'] as List).firstWhere(
+                (e) => e[0] == element.toString(),
+                orElse: () => null);
+
+            if (found != null) suggestedList.add(found);
+          } catch (e) {}
         }
       }
-    });
+    } catch (e) {
+      debugPrint('❌ Error in fetchCurrencyCountries(): $e');
+    }
   }
 
   RxString selectedSchedule = ''.obs;
@@ -160,19 +171,22 @@ class NpsController extends GetxController {
       resetList();
       isFiltered(false);
     } else {
-      filteredCountryList.value = (currencyDetails['supported_codes'] as List)
-          .where((element) =>
-              element[0].toLowerCase().contains(value.toLowerCase()) ||
-              element[1].toLowerCase().contains(value.toLowerCase()))
-          .toList();
-      debugPrint('✅ Filtered list updated: ${filteredCountryList.length}');
-      isFiltered(true);
+      if (currencyDetails['supported_codes'] != null) {
+        filteredCountryList.value = (currencyDetails['supported_codes'] as List)
+            .where((element) =>
+                element[0].toLowerCase().contains(value.toLowerCase()) ||
+                element[1].toLowerCase().contains(value.toLowerCase()))
+            .toList();
+        debugPrint('✅ Filtered list updated: ${filteredCountryList.length}');
+        isFiltered(true);
+      }
     }
   }
 
   void resetList() {
     debugPrint('🔹 resetList() called');
-    if (currencyDetails.isNotEmpty) {
+    if (currencyDetails.isNotEmpty &&
+        currencyDetails['supported_codes'] != null) {
       filteredCountryList.value = currencyDetails['supported_codes'];
       debugPrint('✅ Filtered list reset (${filteredCountryList.length})');
     }
@@ -181,6 +195,7 @@ class NpsController extends GetxController {
   RxBool loadingCurrency = false.obs;
   RxMap currencyMap = {}.obs;
 
+  // 4. CHANGED: Use V4 API (Free, No Key)
   void fetchCurrencyDetails(String country) async {
     debugPrint('🌍 fetchCurrencyDetails() called for $country');
     var primaryCurrency =
@@ -190,21 +205,36 @@ class NpsController extends GetxController {
     loadingCurrency(true);
     ApiService()
         .getApi(
-            url:
-                'https://v6.exchangerate-api.com/v6/cb61912390612c8d94615387/latest/$country')
+            // ✅ UPDATED URL: Using the working V4 API
+            url: 'https://api.exchangerate-api.com/v4/latest/$country')
         .then((value) async {
       debugPrint('📡 fetchCurrencyDetails() response received');
       if (value != null) {
         var response = jsonDecode(value);
-        currencyMap.value = response['conversion_rates'];
-        textEditingControllerExgRate.text =
-            double.parse(currencyMap[primaryCurrency].toString())
-                .toStringAsFixed(2);
-        exgRate.value = double.parse(currencyMap[primaryCurrency].toString());
-        debugPrint('💹 Updated exgRate = ${exgRate.value}');
+
+        // ✅ UPDATED PARSING: Check for 'rates' (V4) or 'conversion_rates' (V6 legacy)
+        if (response['rates'] != null) {
+          currencyMap.value = response['rates'];
+        } else if (response['conversion_rates'] != null) {
+          currencyMap.value = response['conversion_rates'];
+        }
+
+        if (currencyMap[primaryCurrency] != null) {
+          double newRate =
+              double.parse(currencyMap[primaryCurrency].toString());
+          textEditingControllerExgRate.text = newRate.toStringAsFixed(2);
+          exgRate.value = newRate;
+          debugPrint('💹 Updated exgRate = ${exgRate.value}');
+          getRates(ex: exgRate.value.toString());
+        }
         loadingCurrency(false);
-        getRates(ex: exgRate.value.toString());
       }
+    }).catchError((e) {
+      debugPrint('❌ Error fetching rates: $e');
+      // Safe Fallback
+      textEditingControllerExgRate.text = '1.0';
+      exgRate.value = 1.0;
+      loadingCurrency(false);
     });
   }
 
@@ -215,34 +245,25 @@ class NpsController extends GetxController {
     debugPrint('💱 getRates() called with -> r:$r ex:$ex');
     if (r != null && r.isNotEmpty) {
       rate.value = Utils.parseToDouble(r);
-      if (exgRate.value > 0) {
-        textEditingControllerRateKg.text =
-            (rate.value / exgRate.value).toStringAsFixed(2);
-        textEditingControllerRateLbs.text =
-            (rate.value / (exgRate.value * 2.205)).toStringAsFixed(2);
-      } else {
-        exgRate.value = 1;
-        textEditingControllerRateKg.text =
-            (rate.value / exgRate.value).toStringAsFixed(2);
-        textEditingControllerRateLbs.text =
-            (rate.value / (exgRate.value * 2.205)).toStringAsFixed(2);
-      }
+      double exRateVal = exgRate.value > 0 ? exgRate.value : 1.0;
+
+      textEditingControllerRateKg.text =
+          (rate.value / exRateVal).toStringAsFixed(2);
+      textEditingControllerRateLbs.text =
+          (rate.value / (exRateVal * 2.205)).toStringAsFixed(2);
+
       debugPrint(
           '✅ getRates (by Rate) -> RateKg:${textEditingControllerRateKg.text} Lbs:${textEditingControllerRateLbs.text}');
     } else if (ex != null && ex.isNotEmpty) {
       exgRate.value = Utils.parseToDouble(ex);
-      if (exgRate.value > 0) {
-        textEditingControllerRateKg.text =
-            (rate.value / exgRate.value).toStringAsFixed(2);
-        textEditingControllerRateLbs.text =
-            (rate.value / (exgRate.value * 2.205)).toStringAsFixed(2);
-      } else {
-        exgRate.value = 1;
-        textEditingControllerRateKg.text =
-            (rate.value / exgRate.value).toStringAsFixed(2);
-        textEditingControllerRateLbs.text =
-            (rate.value / (exgRate.value * 2.205)).toStringAsFixed(2);
-      }
+      double exRateVal = exgRate.value > 0 ? exgRate.value : 1.0;
+      exgRate.value = exRateVal; // ensure safe value
+
+      textEditingControllerRateKg.text =
+          (rate.value / exRateVal).toStringAsFixed(2);
+      textEditingControllerRateLbs.text =
+          (rate.value / (exRateVal * 2.205)).toStringAsFixed(2);
+
       debugPrint(
           '✅ getRates (by ExgRate) -> RateKg:${textEditingControllerRateKg.text} Lbs:${textEditingControllerRateLbs.text}');
     }
@@ -274,10 +295,8 @@ class NpsController extends GetxController {
     textEditingControllerRate.text = '';
     textEditingControllerExgRate.text = '1.0';
 
-    // --- ADDED: Clear new controllers ---
     textEditingControllerOdMm.text = '';
     textEditingControllerThkMm.text = '';
-    // ------------------------------------
 
     selectedCurrency.value = [];
     rate.value = 100.0;
@@ -298,6 +317,7 @@ class NpsController extends GetxController {
   Map globalNpsMap = {};
 
   Future<void> readExcelFromAssets() async {
+    // ... (Keeping your exact Excel logic) ...
     ByteData data = await rootBundle.load('assets/sheets/nps.xlsx');
     Uint8List bytes = data.buffer.asUint8List();
 
@@ -382,10 +402,8 @@ class NpsController extends GetxController {
     odInch.value = map['odInch'];
     odMm.value = map['odMm'];
 
-    // --- ADDED: Populate Text Controllers ---
     textEditingControllerOdMm.text = odMm.value;
     textEditingControllerThkMm.text = thkMm.value;
-    // ------------------------------------
 
     kgM.value = map['kgM']; // This is CS kg/m
     kgFt.value = map['kgFt'];

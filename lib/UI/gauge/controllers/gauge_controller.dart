@@ -541,34 +541,6 @@ class GaugeController extends GetxController {
   RxBool loadingCurrency = false.obs;
   RxMap currencyMap = {}.obs;
 
-  // --- MODIFIED: fetchCurrencyDetails ---
-  void fetchCurrencyDetails(String country) async {
-    debugPrint('🌍 fetchCurrencyDetails() called for $country');
-    var primaryCurrency =
-        await StorageService.getStorage(key: 'primaryCurrencyCode') ?? 'INR';
-    debugPrint('... against primary currency: $primaryCurrency');
-
-    loadingCurrency(true);
-    ApiService()
-        .getApi(
-            url:
-                'https://v6.exchangerate-api.com/v6/cb61912390612c8d94615387/latest/$country')
-        .then((value) async {
-      debugPrint('📡 fetchCurrencyDetails() response received');
-      if (value != null) {
-        var response = jsonDecode(value);
-        currencyMap.value = response['conversion_rates'];
-        textEditingControllerExgRate.text =
-            double.parse(currencyMap[primaryCurrency].toString())
-                .toStringAsFixed(2);
-        exgRate.value = double.parse(currencyMap[primaryCurrency].toString());
-        debugPrint('💹 Updated exgRate = ${exgRate.value}');
-        loadingCurrency(false);
-        getRates(ex: exgRate.value.toString());
-      }
-    });
-  }
-
   // ------------------------------------
 
   List recommends = [
@@ -590,23 +562,69 @@ class GaugeController extends GetxController {
   RxMap currencyDetails = {}.obs;
   RxList selectedCurrency = [].obs;
 
-  void fetchCurrencyCountries() {
-    debugPrint('🌍 fetchCurrencyCountries() started');
-    ApiService()
-        .getApi(
-            url:
-                'https://v6.exchangerate-api.com/v6/cb61912390612c8d94615387/codes')
-        .then((value) {
-      debugPrint('📡 fetchCurrencyCountries() response received');
-      if (value != null) {
+  // 3. CHANGED: Offline List Loading (Safe)
+  void fetchCurrencyCountries() async {
+    debugPrint('🌍 fetchCurrencyCountries() started (OFFLINE MODE)');
+    try {
+      final value =
+          await rootBundle.loadString('assets/images/currencies.json');
+      if (value.isNotEmpty) {
+        debugPrint('✅ Currency JSON loaded successfully from assets');
         currencyDetails.value = jsonDecode(value);
         filteredCountryList.value = currencyDetails['supported_codes'];
+        suggestedList.clear();
         for (var element in recommends) {
-          suggestedList.add((currencyDetails['supported_codes'] as List)
-              .where((e) => e[0] == element.toString())
-              .first);
+          try {
+            var found = (currencyDetails['supported_codes'] as List).firstWhere(
+                (e) => e[0] == element.toString(),
+                orElse: () => null);
+            if (found != null) suggestedList.add(found);
+          } catch (e) {}
         }
       }
+    } catch (e) {
+      debugPrint('❌ Error in fetchCurrencyCountries(): $e');
+    }
+  }
+
+  // 4. CHANGED: Online V4 Rates (Safe & Free)
+  void fetchCurrencyDetails(String country) async {
+    debugPrint('🌍 fetchCurrencyDetails() called for $country');
+    var primaryCurrency =
+        await StorageService.getStorage(key: 'primaryCurrencyCode') ?? 'INR';
+    loadingCurrency(true);
+
+    ApiService()
+        .getApi(
+            // ✅ UPDATED: Use working V4 API
+            url: 'https://api.exchangerate-api.com/v4/latest/$country')
+        .then((value) async {
+      debugPrint('📡 fetchCurrencyDetails() response received');
+      if (value != null) {
+        var response = jsonDecode(value);
+
+        // ✅ UPDATED: Handle 'rates' key
+        if (response['rates'] != null) {
+          currencyMap.value = response['rates'];
+        } else if (response['conversion_rates'] != null) {
+          currencyMap.value = response['conversion_rates'];
+        }
+
+        if (currencyMap[primaryCurrency] != null) {
+          double newRate =
+              double.parse(currencyMap[primaryCurrency].toString());
+          textEditingControllerExgRate.text = newRate.toStringAsFixed(2);
+          exgRate.value = newRate;
+          debugPrint('💹 Updated exgRate = ${exgRate.value}');
+          getRates(ex: exgRate.value.toString());
+        }
+        loadingCurrency(false);
+      }
+    }).catchError((e) {
+      debugPrint('❌ Error fetching rates: $e');
+      textEditingControllerExgRate.text = '1.0';
+      exgRate.value = 1.0;
+      loadingCurrency(false);
     });
   }
 }

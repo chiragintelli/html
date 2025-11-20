@@ -1370,7 +1370,6 @@ class _ManualViewState extends State<ManualView> {
                           ),
                         ),
                         onSubmitted: (value) {
-                          // <-- DEBUG
                           dev.log('Rate (LBS) onSubmitted: $value',
                               name: 'Input.RateLBS');
                           controller.getRates(ex: value);

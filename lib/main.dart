@@ -9,6 +9,7 @@ import 'package:media_store_plus/media_store_plus.dart';
 import 'package:sizer/sizer.dart';
 
 void main() async {
+  ///
   WidgetsFlutterBinding.ensureInitialized();
   // REQUIRED — initialize the MediaStore plugin
   await MediaStore.ensureInitialized();
